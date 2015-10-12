@@ -20,7 +20,24 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+
+### Exectue a query on each connection
+
+```
+RailsMultisite::ConnectionManagement.each_connection do |db|
+  # run query in context of db
+  # eg: User.find(1)
+end
+```
+
+```
+RailsMultisite::ConnectionManagement.each_connection(threads: 5) do |db|
+  # run query in context of db, will do so in a thread pool of 5 threads
+  # if any query fails an exception will be raised
+  # eg: User.find(1)
+end
+```
+
 
 ## Contributing
 
