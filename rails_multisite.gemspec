@@ -8,9 +8,9 @@ Gem::Specification.new do |gem|
   gem.summary       = %q{Multi tenancy support for Rails}
   gem.homepage      = ""
 
-  # when this is extracted comment it back in, prd has no .git 
+  # when this is extracted comment it back in, prd has no .git
   # gem.files         = `git ls-files`.split($\)
-  gem.files         = Dir['README*','LICENSE','lib/**/*.rb']
+  gem.files         = Dir['README*','LICENSE','lib/**/*.rb', 'lib/**/*.rake']
 
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
   gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
