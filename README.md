@@ -1,8 +1,12 @@
-# RailsMultisite
+# Rails Multisite
 
 This gem provides multi-db support for Rails applications.
 
 Using its middleware you can partition your app so each hostname has its own db.
+
+It provides a series of helper for working with multiple database, and some additional rails tasks for working with them.
+
+It was extracted from Discourse. http://discourse.org
 
 ## Installation
 
@@ -19,6 +23,8 @@ Or install it yourself as:
     $ gem install rails_multisite
 
 ## Usage
+
+Configuration requires a file called: `config/multisite.yml` that specifies connection specs for all dbs.
 
 
 ### Exectue a query on each connection
