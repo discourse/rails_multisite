@@ -5,26 +5,35 @@ class Person < ActiveRecord::Base; end
 
 describe RailsMultisite::ConnectionManagement do
 
-  subject { RailsMultisite::ConnectionManagement }
+  let(:conn){ RailsMultisite::ConnectionManagement }
 
   def with_connection(db)
-    subject.establish_connection(db: db)
+    conn.establish_connection(db: db)
     yield ActiveRecord::Base.connection.raw_connection
   ensure
     ActiveRecord::Base.connection_handler.clear_active_connections!
   end
 
   context 'default' do
-    its(:all_dbs) { should == ['default']}
+
+    it 'has correct all_dbs' do
+      expect(conn.all_dbs).to eq(['default'])
+    end
 
     context 'current' do
       before do
-        subject.establish_connection(db: 'default')
+        conn.establish_connection(db: 'default')
         ActiveRecord::Base.establish_connection
       end
 
-      its(:current_db) { should == 'default' }
-      its(:current_hostname) { should == 'default.localhost' }
+      it "has default current db" do
+        expect(conn.current_db).to eq('default')
+      end
+
+      it "has current hostname" do
+        expect(conn.current_hostname).to eq('default.localhost')
+      end
+
     end
 
   end
@@ -32,19 +41,23 @@ describe RailsMultisite::ConnectionManagement do
   context 'two dbs' do
 
     before do
-      subject.config_filename = "spec/fixtures/two_dbs.yml"
-      subject.load_settings!
+      conn.config_filename = "spec/fixtures/two_dbs.yml"
+      conn.load_settings!
     end
 
-    its(:all_dbs) { should == ['default', 'second']}
+    it "has correct all_dbs" do
+      expect(conn.all_dbs).to eq(['default', 'second'])
+    end
 
     context 'second db' do
       before do
-        subject.establish_connection(db: 'second')
+        conn.establish_connection(db: 'second')
       end
 
-      its(:current_db) { should == 'second' }
-      its(:current_hostname) { should == "second.localhost" }
+      it "is configured correctly" do
+        expect(conn.current_db).to eq('second')
+        expect(conn.current_hostname).to eq("second.localhost")
+      end
     end
 
     context 'data partitioning' do
@@ -57,8 +70,6 @@ describe RailsMultisite::ConnectionManagement do
       end
 
       it 'partitions data correctly' do
-        col1 = []
-        col2 = []
 
         ['default','second'].map do |db|
 
@@ -86,14 +97,11 @@ describe RailsMultisite::ConnectionManagement do
           end
         end
 
-        lists[1].should == (1..5).map{|id| [id, "second"]}
-        lists[0].should == (1..5).map{|id| [id, "default"]}
-
-        # puts SQLite3::Database.query_log.map{|args, caller, oid| "#{oid} #{args.join.inspect}"}.join("\n")
+        expect(lists[1]).to eq((1..5).map{|id| [id, "second"]})
+        expect(lists[0]).to eq((1..5).map{|id| [id, "default"]})
 
       end
     end
-
   end
 
 end

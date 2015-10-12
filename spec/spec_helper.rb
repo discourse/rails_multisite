@@ -28,7 +28,7 @@ RSpec.configure do |config|
   end
 
   config.before(:suite) do
-    ActiveRecord::Base.configurations['test'] = (YAML::load(File.open("spec/fixtures/database.yml"))['test'])
+    ActiveRecord::Base.configurations["test"] = (YAML::load(File.open("spec/fixtures/database.yml"))['test'])
   end
 
 end
