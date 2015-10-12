@@ -78,14 +78,60 @@ module RailsMultisite
       rval
     end
 
-    def self.each_connection(opts=nil)
+    def self.each_connection(opts=nil, &blk)
+
       old = current_db
       connected = ActiveRecord::Base.connection_pool.connected?
-      all_dbs.each do |db|
-        establish_connection(:db => db)
-        yield db
-        ActiveRecord::Base.connection_handler.clear_active_connections!
+
+      queue = nil
+      threads = nil
+
+      if (opts && (threads = opts[:threads]))
+        queue = Queue.new
+        all_dbs.each{|db| queue << db}
       end
+
+      errors = nil
+
+      if queue
+        threads.times.map do
+          Thread.new do
+
+            while true
+              begin
+                db = queue.deq(true)
+              rescue ThreadError
+                db = nil
+              end
+
+              break unless db
+
+              establish_connection(:db => db)
+              # no choice but to rescue, should probably log
+
+              begin
+                blk.call(db)
+              rescue => e
+                (errors ||= []) << e
+              end
+              ActiveRecord::Base.connection_handler.clear_active_connections!
+            end
+          end
+        end.map(&:join)
+      else
+        all_dbs.each do |db|
+          establish_connection(:db => db)
+          blk.call(db)
+          ActiveRecord::Base.connection_handler.clear_active_connections!
+        end
+      end
+
+      if errors && errors.length > 0
+        raise StandardError, "Failed to run queries #{errors.inspect}"
+      end
+
+
+    ensure
       establish_connection(:db => old)
       ActiveRecord::Base.connection_handler.clear_active_connections! unless connected
     end

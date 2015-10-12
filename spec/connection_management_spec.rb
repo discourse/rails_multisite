@@ -45,6 +45,29 @@ describe RailsMultisite::ConnectionManagement do
       conn.load_settings!
     end
 
+    it "can exectue a queries concurrently per db" do
+      threads = Set.new
+      conn.each_connection(threads: 2) do
+        sleep 0.001
+        threads << Thread.current.object_id
+      end
+
+      expect(threads.length).to eq(2)
+    end
+
+    it "correctly handles exceptions in threads mode" do
+
+      begin
+        conn.each_connection(threads: 2) do
+          boom
+        end
+      rescue => e
+        exp = e
+      end
+
+      expect(exp.to_s).to include("boom")
+    end
+
     it "has correct all_dbs" do
       expect(conn.all_dbs).to eq(['default', 'second'])
     end
