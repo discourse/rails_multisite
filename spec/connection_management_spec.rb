@@ -5,6 +5,10 @@ class Person < ActiveRecord::Base; end
 
 describe RailsMultisite::ConnectionManagement do
 
+  after do
+    conn.clear_settings!
+  end
+
   let(:conn){ RailsMultisite::ConnectionManagement }
 
   def with_connection(db)
@@ -38,12 +42,23 @@ describe RailsMultisite::ConnectionManagement do
 
   end
 
+  it "inherits prepared_statements" do
+    ActiveRecord::Base.configurations[Rails.env]["prepared_statements"] = false
+    conn.config_filename = "spec/fixtures/two_dbs.yml"
+    conn.load_settings!
+
+    expect(conn.connection_spec(db: "second").config[:prepared_statements]).to be(false)
+
+    ActiveRecord::Base.configurations[Rails.env]["prepared_statements"] = nil
+  end
+
   context 'two dbs' do
 
     before do
       conn.config_filename = "spec/fixtures/two_dbs.yml"
       conn.load_settings!
     end
+
 
     it "can exectue a queries concurrently per db" do
       threads = Set.new

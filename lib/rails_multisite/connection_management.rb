@@ -171,9 +171,13 @@ module RailsMultisite
     def self.load_settings!
       spec_klass = ActiveRecord::ConnectionAdapters::ConnectionSpecification
       configs = YAML::load(File.open(self.config_filename))
+
+      no_prepared_statements = ActiveRecord::Base.configurations[Rails.env]["prepared_statements"] == false
+
       configs.each do |k,v|
         raise ArgumentError.new("Please do not name any db default!") if k == "default"
         v[:db_key] = k
+        v[:prepared_statements] = false if no_prepared_statements
       end
 
       @@db_spec_cache = Hash[*configs.map do |k, data|
