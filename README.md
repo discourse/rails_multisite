@@ -27,7 +27,7 @@ Or install it yourself as:
 Configuration requires a file called: `config/multisite.yml` that specifies connection specs for all dbs.
 
 
-### Exectue a query on each connection
+### Execute a query on each connection
 
 ```
 RailsMultisite::ConnectionManagement.each_connection do |db|
