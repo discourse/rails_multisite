@@ -6,7 +6,7 @@ Using its middleware you can partition your app so each hostname has its own db.
 
 It provides a series of helper for working with multiple database, and some additional rails tasks for working with them.
 
-It was extracted from Discourse. http://discourse.org
+It was extracted from Discourse. https://discourse.org
 
 ## Installation
 
