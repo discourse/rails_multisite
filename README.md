@@ -26,6 +26,33 @@ Or install it yourself as:
 
 Configuration requires a file called: `config/multisite.yml` that specifies connection specs for all dbs.
 
+```
+mlp:
+  adapter: postgresql
+  database: discourse_mlp
+  username: discourse_mlp
+  password: applejack
+  host: dbhost
+  pool: 5
+  timeout: 5000
+  db_id: 1  # ensure db_id is unique for each site
+  host_names:
+    - discourse.equestria.com
+    - discourse.equestria.internal
+
+drwho:
+  adapter: postgresql
+  database: discourse_who
+  username: discourse_who
+  password: "Up the time stream without a TARDIS"
+  host: dbhost
+  pool: 5
+  timeout: 5000
+  db_id: 2# ensure db_id is unique for each site
+  host_names:
+    - discuss.tardis.gallifrey
+```
+
 
 ### Execute a query on each connection
 
