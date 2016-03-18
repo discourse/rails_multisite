@@ -61,7 +61,7 @@ module RailsMultisite
       rval
     end
 
-    def self.with_connection(db = "default")
+    def self.with_connection(db = DEFAULT)
       old = current_db
       connected = ActiveRecord::Base.connection_pool.connected?
 
@@ -137,7 +137,7 @@ module RailsMultisite
     end
 
     def self.all_dbs
-      ["default"] +
+      [DEFAULT] +
         if defined?(@@db_spec_cache) && @@db_spec_cache
           @@db_spec_cache.keys.to_a
         else
@@ -146,7 +146,7 @@ module RailsMultisite
     end
 
     def self.current_db
-      ActiveRecord::Base.connection_pool.spec.config[:db_key] || "default"
+      ActiveRecord::Base.connection_pool.spec.config[:db_key] || DEFAULT
     end
 
     def self.config_filename=(config_filename)
@@ -175,7 +175,7 @@ module RailsMultisite
       no_prepared_statements = ActiveRecord::Base.configurations[Rails.env]["prepared_statements"] == false
 
       configs.each do |k,v|
-        raise ArgumentError.new("Please do not name any db default!") if k == "default"
+        raise ArgumentError.new("Please do not name any db default!") if k == DEFAULT
         v[:db_key] = k
         v[:prepared_statements] = false if no_prepared_statements
       end

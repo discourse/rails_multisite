@@ -8,6 +8,7 @@ module RailsMultisite
       Rails.configuration.multisite = false
       if File.exists?(ConnectionManagement.config_filename)
         Rails.configuration.multisite = true
+        Rails.logger.formatter = RailsMultisite::Formatter.new
         ConnectionManagement.load_settings!
         app.middleware.insert_after(ActiveRecord::ConnectionAdapters::ConnectionManagement, RailsMultisite::ConnectionManagement)
         app.middleware.delete(ActiveRecord::ConnectionAdapters::ConnectionManagement)
@@ -16,8 +17,6 @@ module RailsMultisite
         end
       end
     end
-
-
   end
 end
 
