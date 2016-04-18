@@ -180,9 +180,8 @@ module RailsMultisite
         v[:prepared_statements] = false if no_prepared_statements
       end
 
-      @@db_spec_cache = Hash[*configs.map do |k, data|
-        [k, spec_klass::Resolver.new(configs).spec(k)]
-      end.flatten]
+      resolver = spec_klass::Resolver.new(configs)
+      @@db_spec_cache = Hash[*configs.map { |k, _| [k, resolver.spec(k.to_sym)] }.flatten]
 
       @@host_spec_cache = {}
       configs.each do |k,v|
@@ -192,7 +191,7 @@ module RailsMultisite
         end
       end
 
-      @@default_spec = spec_klass::Resolver.new(ActiveRecord::Base.configurations).spec(Rails.env)
+      @@default_spec = spec_klass::Resolver.new(ActiveRecord::Base.configurations).spec(Rails.env.to_sym)
       ActiveRecord::Base.configurations[Rails.env]["host_names"].each do |host|
         @@host_spec_cache[host] = @@default_spec
       end
