@@ -17,4 +17,6 @@ Gem::Specification.new do |gem|
   gem.name          = "rails_multisite"
   gem.require_paths = ["lib"]
   gem.version       = RailsMultisite::VERSION
+
+  gem.add_runtime_dependency "rails", "> 4.2", "< 5"
 end
