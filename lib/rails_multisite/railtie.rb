@@ -13,7 +13,7 @@ module RailsMultisite
         app.middleware.insert_after(ActiveRecord::ConnectionAdapters::ConnectionManagement, RailsMultisite::ConnectionManagement)
         app.middleware.delete(ActiveRecord::ConnectionAdapters::ConnectionManagement)
         if ENV['RAILS_DB']
-          ConnectionManagement.establish_connection(:db => ENV['RAILS_DB'])
+          ConnectionManagement.establish_connection(db: ENV['RAILS_DB'].to_sym)
         end
       end
     end
