@@ -6,5 +6,5 @@ rvm:
   - 2.3.0
 cache: bundler
 sudo: false
-install: bundle install --without development--retry=3 --jobs=3
+install: bundle install --without development --retry=3 --jobs=3
 script: bundle exec rspec
