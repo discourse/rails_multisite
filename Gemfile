@@ -7,8 +7,10 @@ group :test do
   gem 'sqlite3'
 end
 
-gem 'guard'
-gem 'guard-rspec'
+group :development do
+  gem 'guard'
+  gem 'guard-rspec'
+end
 
 # Specify your gem's dependencies in rails_multisite.gemspec
 gemspec
