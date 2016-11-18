@@ -59,6 +59,11 @@ describe RailsMultisite::ConnectionManagement do
       conn.load_settings!
     end
 
+    it 'accepts a symbol for the db name' do
+      with_connection(:second) do
+        expect(conn.current_db).to eq('second')
+      end
+    end
 
     it "can exectue a queries concurrently per db" do
       threads = Set.new

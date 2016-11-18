@@ -13,6 +13,8 @@ module RailsMultisite
     end
 
     def self.establish_connection(opts)
+      opts[:db] = opts[:db].to_s
+
       if opts[:db] == DEFAULT && (!defined?(@@default_spec) || !@@default_spec)
         # don't do anything .. handled implicitly
       else
