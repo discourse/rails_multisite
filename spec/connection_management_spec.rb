@@ -147,4 +147,30 @@ describe RailsMultisite::ConnectionManagement do
     end
   end
 
+  context "updating settings" do
+    before do
+      conn.config_filename = "spec/fixtures/two_dbs.yml"
+      conn.load_settings!
+    end
+
+    it 'should load the new settings correctly' do
+      hostnames = ['cat.localhost', 'dog.localhost']
+
+      conn.update_settings("apple" => {
+        "adapter" => 'sqlite3', "host_names" => hostnames, "database" => 'tmp/db.test'
+      })
+
+      [{ db: 'apple' }, { host: 'cat.localhost' }].each do |opts|
+        expect(conn.connection_spec(opts).config[:host_names]).to eq(hostnames)
+      end
+
+      expect(conn.all_dbs).to eq(['default', 'second', 'apple'])
+
+      conn.establish_connection(db: 'apple')
+      expect(conn.current_db).to eq('apple')
+      expect(conn.current_hostname).to eq(hostnames[0])
+      conn.with_hostname(hostnames[1]) { expect(conn.current_db).to eq('apple') }
+    end
+  end
+
 end

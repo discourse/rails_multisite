@@ -2,6 +2,7 @@ module RailsMultisite
   class ConnectionManagement
     CONFIG_FILE = 'config/multisite.yml'
     DEFAULT = 'default'.freeze
+    SPEC_KLASS = ActiveRecord::ConnectionAdapters::ConnectionSpecification
 
     def self.has_db?(db)
       return true if db == DEFAULT
@@ -171,18 +172,9 @@ module RailsMultisite
     end
 
     def self.load_settings!
-      spec_klass = ActiveRecord::ConnectionAdapters::ConnectionSpecification
       configs = YAML::load(File.open(self.config_filename))
-
-      no_prepared_statements = ActiveRecord::Base.configurations[Rails.env]["prepared_statements"] == false
-
-      configs.each do |k,v|
-        raise ArgumentError.new("Please do not name any db default!") if k == DEFAULT
-        v[:db_key] = k
-        v[:prepared_statements] = false if no_prepared_statements
-      end
-
-      resolver = spec_klass::Resolver.new(configs)
+      verify_config(configs)
+      resolver = SPEC_KLASS::Resolver.new(configs)
       @@db_spec_cache = Hash[*configs.map { |k, _| [k, resolver.spec(k.to_sym)] }.flatten]
 
       @@host_spec_cache = {}
@@ -193,7 +185,7 @@ module RailsMultisite
         end
       end
 
-      @@default_spec = spec_klass::Resolver.new(ActiveRecord::Base.configurations).spec(Rails.env.to_sym)
+      @@default_spec = SPEC_KLASS::Resolver.new(ActiveRecord::Base.configurations).spec(Rails.env.to_sym)
       ActiveRecord::Base.configurations[Rails.env]["host_names"].each do |host|
         @@host_spec_cache[host] = @@default_spec
       end
@@ -204,6 +196,18 @@ module RailsMultisite
       @@established_default = false
     end
 
+    def self.update_settings(configs)
+      verify_config(configs)
+      resolver = SPEC_KLASS::Resolver.new(configs)
+
+      configs.each do |key, value|
+        @@db_spec_cache.merge!("#{key}" => resolver.spec(key.to_sym) )
+
+        next unless host_names = value["host_names"]
+        db_spec = @@db_spec_cache[key]
+        host_names.each { |host_name| @@host_spec_cache.merge!("#{host_name}" => db_spec) }
+      end
+    end
 
     def initialize(app, config = nil)
       @app = app
@@ -234,6 +238,18 @@ module RailsMultisite
         @@host_spec_cache[opts[:host]]
       else
         @@db_spec_cache[opts[:db]]
+      end
+    end
+
+    private
+
+    def self.verify_config(configs)
+      no_prepared_statements = ActiveRecord::Base.configurations[Rails.env]["prepared_statements"] == false
+
+      configs.each do |k,v|
+        raise ArgumentError.new("Please do not name any db default!") if k == DEFAULT
+        v[:db_key] = k
+        v[:prepared_statements] = false if no_prepared_statements
       end
     end
 
