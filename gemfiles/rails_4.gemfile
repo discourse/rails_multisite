@@ -1,0 +1,7 @@
+source 'https://rubygems.org'
+
+group :test do
+  gem 'rails', '> 4.2', '< 5'
+  gem 'rspec'
+  gem 'sqlite3'
+end

@@ -24,13 +24,13 @@ module RailsMultisite
           handler = @@connection_handlers[spec]
           unless handler
             handler = ActiveRecord::ConnectionAdapters::ConnectionHandler.new
-            handler.establish_connection(ActiveRecord::Base, spec)
+            self.handler_establish_connection(handler, spec)
             @@connection_handlers[spec] = handler
           end
         else
           handler = @@default_connection_handler
           if !@@established_default
-            handler.establish_connection(ActiveRecord::Base, spec)
+            self.handler_establish_connection(handler, spec)
             @@established_default = true
           end
         end
@@ -236,6 +236,16 @@ module RailsMultisite
         @@db_spec_cache[opts[:db]]
       end
     end
+
+    private
+
+      def self.handler_establish_connection(handler, spec)
+        if Rails::VERSION::MAJOR >= 5
+          handler.establish_connection(spec.config)
+        else
+          handler.establish_connection(ActiveRecord::Base, spec)
+        end
+      end
 
   end
 end
