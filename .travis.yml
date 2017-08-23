@@ -1,9 +1,10 @@
 language: ruby
 rvm:
-  - 2.0.0
+  - 2.0
   - 2.1
   - 2.2
-  - 2.3.0
+  - 2.3
+  - 2.4
 cache: bundler
 sudo: false
 install: bundle install --without development --retry=3 --jobs=3
