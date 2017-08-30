@@ -2,11 +2,12 @@ require 'rubygems'
 require 'rails'
 require 'active_record'
 
-
 ENV["RAILS_ENV"] ||= 'test'
 RSpec.configure do |config|
+  config.order = 'random'
 
   require 'sqlite3'
+
   class SQLite3::Database
     def self.query_log
       @@query_log ||= []
@@ -32,5 +33,3 @@ RSpec.configure do |config|
   end
 
 end
-
-
