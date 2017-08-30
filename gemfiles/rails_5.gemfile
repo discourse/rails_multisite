@@ -4,4 +4,5 @@ group :test do
   gem 'rails', '> 5', '< 6'
   gem 'rspec'
   gem 'sqlite3'
+  gem 'byebug'
 end
