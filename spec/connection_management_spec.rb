@@ -67,8 +67,9 @@ describe RailsMultisite::ConnectionManagement do
 
     it "can exectue a queries concurrently per db" do
       threads = Set.new
+
       conn.each_connection(threads: 2) do
-        sleep 0.001
+        sleep 0.002
         threads << Thread.current.object_id
       end
 
