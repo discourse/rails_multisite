@@ -7,6 +7,7 @@ RSpec.configure do |config|
   config.order = 'random'
 
   require 'sqlite3'
+  require 'byebug'
 
   class SQLite3::Database
     def self.query_log
