@@ -9,7 +9,7 @@ describe RailsMultisite::ConnectionManagement do
     conn.clear_settings!
   end
 
-  let(:conn){ RailsMultisite::ConnectionManagement }
+  let(:conn) { RailsMultisite::ConnectionManagement }
 
   def with_connection(db)
     conn.establish_connection(db: db)
@@ -57,6 +57,7 @@ describe RailsMultisite::ConnectionManagement do
     before do
       conn.config_filename = "spec/fixtures/two_dbs.yml"
       conn.load_settings!
+      conn.establish_connection(db: RailsMultisite::ConnectionManagement::DEFAULT)
     end
 
     it 'accepts a symbol for the db name' do
@@ -83,10 +84,8 @@ describe RailsMultisite::ConnectionManagement do
           boom
         end
       rescue => e
-        exp = e
+        expect(e.to_s).to include("boom")
       end
-
-      expect(exp.to_s).to include("boom")
     end
 
     it "has correct all_dbs" do
