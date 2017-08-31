@@ -1,7 +1,8 @@
 source 'https://rubygems.org'
 
 group :test do
-  gem 'rails', '> 4.2', '< 5'
+  gem 'activerecord', '> 4.2', '< 5'
+  gem 'railties', '> 4.2', '< 5'
   gem 'rspec'
   gem 'sqlite3'
   gem 'byebug'

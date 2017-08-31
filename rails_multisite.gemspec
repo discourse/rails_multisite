@@ -18,5 +18,7 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
   gem.version       = RailsMultisite::VERSION
 
-  gem.add_runtime_dependency "rails", "> 4.2", "< 6"
+  %w{activerecord railties}.each do |gem_name|
+    gem.add_dependency gem_name, "> 4.2", "< 6"
+  end
 end

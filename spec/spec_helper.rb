@@ -1,7 +1,3 @@
-require 'rubygems'
-require 'rails'
-require 'active_record'
-
 ENV["RAILS_ENV"] ||= 'test'
 RSpec.configure do |config|
   config.order = 'random'
