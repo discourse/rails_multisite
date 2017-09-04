@@ -6,17 +6,18 @@ module RailsMultisite
 
     initializer "RailsMultisite.init" do |app|
       Rails.configuration.multisite = false
-      if File.exists?(ConnectionManagement.config_filename)
+
+      if File.exist?(ConnectionManagement.config_filename)
         Rails.configuration.multisite = true
         Rails.logger.formatter = RailsMultisite::Formatter.new
         ConnectionManagement.load_settings!
-        app.middleware.insert_after(ActiveRecord::ConnectionAdapters::ConnectionManagement, RailsMultisite::ConnectionManagement)
-        app.middleware.delete(ActiveRecord::ConnectionAdapters::ConnectionManagement)
+        app.middleware.insert_after(ActionDispatch::Executor, RailsMultisite::ConnectionManagement)
+        app.middleware.delete(ActionDispatch::Executor)
+
         if ENV['RAILS_DB']
-          ConnectionManagement.establish_connection(:db => ENV['RAILS_DB'])
+          ConnectionManagement.establish_connection(db: ENV['RAILS_DB'])
         end
       end
     end
   end
 end
-
