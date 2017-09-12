@@ -147,7 +147,12 @@ module RailsMultisite
         end
     end
 
+    def self.set_current_db
+      @@current_db = DEFAULT
+    end
+
     def self.current_db
+      return @@current_db if defined?(@@current_db)
       ActiveRecord::Base.connection_pool.spec.config[:db_key] || DEFAULT
     end
 
