@@ -1,3 +1,3 @@
 module RailsMultisite
-  VERSION = "1.1.0.rc3"
+  VERSION = "1.1.0.rc4"
 end
