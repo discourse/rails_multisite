@@ -66,12 +66,12 @@ describe RailsMultisite::ConnectionManagement do
       end
     end
 
-    it "can exectue a queries concurrently per db" do
+    it "can exectue queries concurrently per db" do
       threads = Set.new
 
       conn.each_connection(threads: 2) do
-        sleep 0.002
         threads << Thread.current.object_id
+        sleep 0.001
       end
 
       expect(threads.length).to eq(2)
