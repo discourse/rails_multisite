@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+#
 module RailsMultisite
   class Formatter < ::ActiveSupport::Logger::SimpleFormatter
     include ::ActiveSupport::TaggedLogging::Formatter

@@ -13,7 +13,7 @@ describe RailsMultisite::ConnectionManagement do
     @app ||= Rack::Builder.new {
       use RailsMultisite::ConnectionManagement
       map '/html' do
-        run lambda { |env| [200, {'Content-Type' => 'text/html'}, "<html><BODY><h1>Hi</h1></BODY>\n \t</html>"] }
+        run lambda { |env| [200, { 'Content-Type' => 'text/html' }, "<html><BODY><h1>Hi</h1></BODY>\n \t</html>"] }
       end
     }.to_app
   end
@@ -39,6 +39,4 @@ describe RailsMultisite::ConnectionManagement do
       expect(last_response).to be_not_found
     end
   end
-
 end
-

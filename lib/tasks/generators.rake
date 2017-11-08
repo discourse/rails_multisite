@@ -1,6 +1,6 @@
 desc "generate multisite config file (if missing)"
 task "multisite:generate:config" => :environment do
-  filename =  RailsMultisite::ConnectionManagement.config_filename
+  filename = RailsMultisite::ConnectionManagement.config_filename
 
   if File.exists?(filename)
     puts "Config is already generated at #{RailsMultisite::ConnectionManagement::CONFIG_FILE}"

@@ -13,14 +13,14 @@ RSpec.configure do |config|
     alias_method :old_execute, :execute
     alias_method :old_prepare, :prepare
 
-    def execute(*args,&blk)
+    def execute(*args, &blk)
       self.class.query_log << [args, caller, Thread.current.object_id]
-      old_execute(*args,&blk)
+      old_execute(*args, &blk)
     end
 
-    def prepare(*args,&blk)
+    def prepare(*args, &blk)
       self.class.query_log << [args, caller, Thread.current.object_id]
-      old_prepare(*args,&blk)
+      old_prepare(*args, &blk)
     end
 
   end

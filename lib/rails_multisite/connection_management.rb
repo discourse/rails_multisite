@@ -1,7 +1,9 @@
+# frozen_string_literal: true
+#
 module RailsMultisite
   class ConnectionManagement
     CONFIG_FILE = 'config/multisite.yml'
-    DEFAULT = 'default'.freeze
+    DEFAULT = 'default'
 
     def self.has_db?(db)
       return true if db == DEFAULT
@@ -50,13 +52,13 @@ module RailsMultisite
       old = current_hostname
       connected = ActiveRecord::Base.connection_pool.connected?
 
-      establish_connection(:host => hostname) unless connected && hostname == old
+      establish_connection(host: hostname) unless connected && hostname == old
       rval = yield hostname
 
       unless connected && hostname == old
         ActiveRecord::Base.connection_handler.clear_active_connections!
 
-        establish_connection(:host => old)
+        establish_connection(host: old)
         ActiveRecord::Base.connection_handler.clear_active_connections! unless connected
       end
 
@@ -67,20 +69,20 @@ module RailsMultisite
       old = current_db
       connected = ActiveRecord::Base.connection_pool.connected?
 
-      establish_connection(:db => db) unless connected && db == old
+      establish_connection(db: db) unless connected && db == old
       rval = yield db
 
       unless connected && db == old
         ActiveRecord::Base.connection_handler.clear_active_connections!
 
-        establish_connection(:db => old)
+        establish_connection(db: old)
         ActiveRecord::Base.connection_handler.clear_active_connections! unless connected
       end
 
       rval
     end
 
-    def self.each_connection(opts=nil, &blk)
+    def self.each_connection(opts = nil, &blk)
 
       old = current_db
       connected = ActiveRecord::Base.connection_pool.connected?
@@ -90,7 +92,7 @@ module RailsMultisite
 
       if (opts && (threads = opts[:threads]))
         queue = Queue.new
-        all_dbs.each{|db| queue << db}
+        all_dbs.each { |db| queue << db }
       end
 
       errors = nil
@@ -108,7 +110,7 @@ module RailsMultisite
 
               break unless db
 
-              establish_connection(:db => db)
+              establish_connection(db: db)
               # no choice but to rescue, should probably log
 
               begin
@@ -122,7 +124,7 @@ module RailsMultisite
         end.map(&:join)
       else
         all_dbs.each do |db|
-          establish_connection(:db => db)
+          establish_connection(db: db)
           blk.call(db)
           ActiveRecord::Base.connection_handler.clear_active_connections!
         end
@@ -132,9 +134,8 @@ module RailsMultisite
         raise StandardError, "Failed to run queries #{errors.inspect}"
       end
 
-
     ensure
-      establish_connection(:db => old)
+      establish_connection(db: old)
       ActiveRecord::Base.connection_handler.clear_active_connections! unless connected
     end
 
@@ -181,7 +182,7 @@ module RailsMultisite
 
       no_prepared_statements = ActiveRecord::Base.configurations[Rails.env]["prepared_statements"] == false
 
-      configs.each do |k,v|
+      configs.each do |k, v|
         raise ArgumentError.new("Please do not name any db default!") if k == DEFAULT
         v[:db_key] = k
         v[:prepared_statements] = false if no_prepared_statements
@@ -191,7 +192,7 @@ module RailsMultisite
       @@db_spec_cache = Hash[*configs.map { |k, _| [k, resolver.spec(k.to_sym)] }.flatten]
 
       @@host_spec_cache = {}
-      configs.each do |k,v|
+      configs.each do |k, v|
         next unless v["host_names"]
         v["host_names"].each do |host|
           @@host_spec_cache[host] = @@db_spec_cache[k]
@@ -208,7 +209,6 @@ module RailsMultisite
       @@connection_handlers = {}
       @@established_default = false
     end
-
 
     def initialize(app, config = nil)
       @app = app
@@ -227,7 +227,7 @@ module RailsMultisite
         return [404, {}, ["not found"]] unless @@host_spec_cache[host]
 
         ActiveRecord::Base.connection_handler.clear_active_connections!
-        self.class.establish_connection(:host => host)
+        self.class.establish_connection(host: host)
         @app.call(env)
       ensure
         ActiveRecord::Base.connection_handler.clear_active_connections!

@@ -1,6 +1,5 @@
 language: ruby
 rvm:
-  - 2.1
   - 2.2
   - 2.3
   - 2.4
@@ -9,10 +8,9 @@ gemfile:
   - gemfiles/rails_5.gemfile
 matrix:
   fast_finish: true
-  allow_failures:
-  - gemfile: gemfiles/rails_5.gemfile
-    rvm: 2.1
 cache: bundler
 sudo: false
 install: bundle install --without development --retry=3 --jobs=3
-script: bundle exec rspec
+script:
+  - rubocop
+  - bundle exec rspec

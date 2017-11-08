@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # -*- encoding: utf-8 -*-
 require File.expand_path('../lib/rails_multisite/version', __FILE__)
 
@@ -10,13 +11,15 @@ Gem::Specification.new do |gem|
 
   # when this is extracted comment it back in, prd has no .git
   # gem.files         = `git ls-files`.split($\)
-  gem.files         = Dir['README*','LICENSE','lib/**/*.rb', 'lib/**/*.rake']
+  gem.files         = Dir['README*', 'LICENSE', 'lib/**/*.rb', 'lib/**/*.rake']
 
-  gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
+  gem.executables   = gem.files.grep(%r{^bin/}).map { |f| File.basename(f) }
   gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
   gem.name          = "rails_multisite"
   gem.require_paths = ["lib"]
   gem.version       = RailsMultisite::VERSION
+
+  gem.required_ruby_version = ">=2.2.0"
 
   %w{activerecord railties}.each do |gem_name|
     gem.add_dependency gem_name, "> 4.2", "< 6"

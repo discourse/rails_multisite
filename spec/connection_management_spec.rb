@@ -105,7 +105,7 @@ describe RailsMultisite::ConnectionManagement do
 
     context 'data partitioning' do
       after do
-        ['default','second'].each do |db|
+        ['default', 'second'].each do |db|
           with_connection(db) do |cnn|
             cnn.execute("drop table people") rescue nil
           end
@@ -114,7 +114,7 @@ describe RailsMultisite::ConnectionManagement do
 
       it 'partitions data correctly' do
 
-        ['default','second'].map do |db|
+        ['default', 'second'].map do |db|
 
           with_connection(db) do |cnn|
             cnn.execute("create table if not exists people(id INTEGER PRIMARY KEY AUTOINCREMENT, db)")
@@ -124,7 +124,7 @@ describe RailsMultisite::ConnectionManagement do
         SQLite3::Database.query_log.clear
 
         5.times do
-          ['default','second'].map do |db|
+          ['default', 'second'].map do |db|
             Thread.new do
               with_connection(db) do |cnn|
                 Person.create!(db: db)
@@ -136,12 +136,12 @@ describe RailsMultisite::ConnectionManagement do
         lists = []
         ['default', 'second'].each do |db|
           with_connection(db) do |cnn|
-            lists << Person.order(:id).to_a.map{|p| [p.id, p.db]}
+            lists << Person.order(:id).to_a.map { |p| [p.id, p.db] }
           end
         end
 
-        expect(lists[1]).to eq((1..5).map{|id| [id, "second"]})
-        expect(lists[0]).to eq((1..5).map{|id| [id, "default"]})
+        expect(lists[1]).to eq((1..5).map { |id| [id, "second"] })
+        expect(lists[0]).to eq((1..5).map { |id| [id, "default"] })
 
       end
     end
