@@ -212,6 +212,7 @@ module RailsMultisite
 
     def initialize(app, config = nil)
       @app = app
+      @db_lookup = config && config[:db_lookup]
     end
 
     def self.host(env)
@@ -221,13 +222,20 @@ module RailsMultisite
 
     def call(env)
       host = self.class.host(env)
+      db = nil
       begin
 
-        #TODO: add a callback so users can simply go to a domain to register it, or something
-        return [404, {}, ["not found"]] unless @@host_spec_cache[host]
+        unless @@host_spec_cache[host]
+          db = @db_lookup && @db_lookup.call(env)
+          if db
+            host = nil
+          else
+            return [404, {}, ["not found"]]
+          end
+        end
 
         ActiveRecord::Base.connection_handler.clear_active_connections!
-        self.class.establish_connection(host: host)
+        self.class.establish_connection(host: host, db: db)
         @app.call(env)
       ensure
         ActiveRecord::Base.connection_handler.clear_active_connections!

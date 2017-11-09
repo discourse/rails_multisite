@@ -12,5 +12,5 @@ cache: bundler
 sudo: false
 install: bundle install --without development --retry=3 --jobs=3
 script:
-  - rubocop
+  - bundle exec rubocop
   - bundle exec rspec

@@ -1,3 +1,7 @@
+## 1.1.1
+
+  * allows db_lookup callback for middleware, this allows you to whitelist paths in multisite
+
 ## 1.0.6
 
   * Revert deprecation fix because it can break multisite in subtle ways.
