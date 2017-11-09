@@ -3,14 +3,20 @@ rvm:
   - 2.2
   - 2.3
   - 2.4
+
 gemfile:
   - gemfiles/rails_4.gemfile
   - gemfiles/rails_5.gemfile
+
 matrix:
   fast_finish: true
+
 cache: bundler
+
 sudo: false
+
 install: bundle install --without development --retry=3 --jobs=3
+
 script:
   - bundle exec rubocop
   - bundle exec rspec
