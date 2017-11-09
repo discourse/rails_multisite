@@ -8,7 +8,6 @@ end
 group :test do
   gem 'rspec'
   gem 'sqlite3'
-  gem 'rubocop'
 end
 
 group :development do
