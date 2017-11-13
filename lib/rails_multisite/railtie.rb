@@ -16,8 +16,8 @@ module RailsMultisite
         app.middleware.insert_after(ActionDispatch::Executor, RailsMultisite::ConnectionManagement)
         app.middleware.delete(ActionDispatch::Executor)
 
-        if ENV['RAILS_DB']
-          ConnectionManagement.establish_connection(db: ENV['RAILS_DB'])
+        if ENV['RAILS_DB'].present?
+          ConnectionManagement.establish_connection(db: ENV['RAILS_DB'], raise_on_missing: true)
         end
       else
         ConnectionManagement.set_current_db

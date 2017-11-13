@@ -20,7 +20,11 @@ module RailsMultisite
       if opts[:db] == DEFAULT && (!defined?(@@default_spec) || !@@default_spec)
         # don't do anything .. handled implicitly
       else
-        spec = connection_spec(opts) || @@default_spec
+        spec = connection_spec(opts)
+        if (!spec && opts[:raise_on_missing])
+          raise "ERROR: #{opts[:db]} not found!"
+        end
+        spec ||= @@default_spec
         handler = nil
         if spec != @@default_spec
           handler = @@connection_handlers[spec]

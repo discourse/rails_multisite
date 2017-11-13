@@ -1,3 +1,7 @@
+## 1.1.2
+
+  * raise error if RAILS_DB is specified yet missing
+
 ## 1.1.1
 
   * allows db_lookup callback for middleware, this allows you to whitelist paths in multisite
