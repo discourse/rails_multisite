@@ -1,0 +1,10 @@
+second:
+  adapter: sqlite3
+  database: "tmp/db2.test"
+  host_names:
+    - awesome.com/second
+third:
+  adapter: sqlite3
+  database: "tmp/db3.test"
+  host_names:
+    - awesome.com/third

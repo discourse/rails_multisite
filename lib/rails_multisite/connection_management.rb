@@ -178,6 +178,7 @@ module RailsMultisite
       @@db_spec_cache = nil
       @@host_spec_cache = nil
       @@default_spec = nil
+      @@subfolder_map = nil
     end
 
     def self.load_settings!
@@ -200,6 +201,11 @@ module RailsMultisite
         next unless v["host_names"]
         v["host_names"].each do |host|
           @@host_spec_cache[host] = @@db_spec_cache[k]
+          if host.include? '/'
+            @@subfolder_map ||= {}
+            root, path = host.split("/", 2)
+            (@@subfolder_map[root] ||= []) << "/#{path}"
+          end
         end
       end
 
@@ -221,7 +227,23 @@ module RailsMultisite
 
     def self.host(env)
       request = Rack::Request.new(env)
-      request['__ws'] || request.host
+      host = request['__ws'] || request.host
+
+      if @@subfolder_map && (paths = @@subfolder_map[host])
+        i = 0
+        path = "#{env["SCRIPT_NAME"]}#{env["PATH_INFO"]}"
+        if path.length > 0
+          while i < paths.length
+            if path.start_with?(paths[i])
+              host += paths[i]
+              break
+            end
+            i += 1
+          end
+        end
+      end
+
+      host
     end
 
     def call(env)
