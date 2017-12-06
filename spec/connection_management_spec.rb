@@ -5,11 +5,15 @@ class Person < ActiveRecord::Base; end
 
 describe RailsMultisite::ConnectionManagement do
 
+  let(:conn) { RailsMultisite::ConnectionManagement }
+
+  def fixture_path(name)
+    File.expand_path("fixtures/#{name}", File.dirname(__FILE__))
+  end
+
   after do
     conn.clear_settings!
   end
-
-  let(:conn) { RailsMultisite::ConnectionManagement }
 
   def with_connection(db)
     conn.establish_connection(db: db)
@@ -44,64 +48,15 @@ describe RailsMultisite::ConnectionManagement do
 
   it "inherits prepared_statements" do
     ActiveRecord::Base.configurations[Rails.env]["prepared_statements"] = false
-    conn.config_filename = "spec/fixtures/two_dbs.yml"
-    conn.load_settings!
-
+    conn.config_filename = fixture_path("two_dbs.yml")
     expect(conn.connection_spec(db: "second").config[:prepared_statements]).to be(false)
-
     ActiveRecord::Base.configurations[Rails.env]["prepared_statements"] = nil
-  end
-
-  context 'subfolder' do
-
-    before do
-      conn.config_filename = "spec/fixtures/subfolder.yml"
-      conn.load_settings!
-      conn.establish_connection(db: RailsMultisite::ConnectionManagement::DEFAULT)
-    end
-
-    context 'with_hostname' do
-      it 'can connect correctly' do
-        conn.with_hostname("awesome.com/second") do
-          expect(conn.current_hostname).to eq("awesome.com/second")
-        end
-
-        conn.with_hostname("awesome.com/third") do
-          expect(conn.current_hostname).to eq("awesome.com/third")
-        end
-
-        env = {
-          "rack.input" => "",
-          "SCRIPT_NAME" => nil,
-          "PATH_INFO" => "/second",
-          "HTTP_HOST" => "awesome.com"
-        }
-        expect(conn.host(env)).to eq('awesome.com/second')
-
-        env = {
-          "rack.input" => "",
-          "SCRIPT_NAME" => "/",
-          "PATH_INFO" => "second",
-          "HTTP_HOST" => "awesome.com"
-        }
-        expect(conn.host(env)).to eq('awesome.com/second')
-
-        env = {
-          "rack.input" => "",
-          "PATH_INFO" => "/third/another/place",
-          "HTTP_HOST" => "awesome.com"
-        }
-        expect(conn.host(env)).to eq('awesome.com/third')
-
-      end
-    end
   end
 
   context 'two dbs' do
 
     before do
-      conn.config_filename = "spec/fixtures/two_dbs.yml"
-      conn.load_settings!
+      conn.config_filename = fixture_path("two_dbs.yml")
       conn.establish_connection(db: RailsMultisite::ConnectionManagement::DEFAULT)
     end
 

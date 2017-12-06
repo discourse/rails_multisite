@@ -2,7 +2,7 @@ require 'spec_helper'
 require 'rails_multisite'
 require 'rack/test'
 
-describe RailsMultisite::ConnectionManagement do
+describe RailsMultisite::Middleware do
   include Rack::Test::Methods
 
   let :config do
@@ -12,10 +12,9 @@ describe RailsMultisite::ConnectionManagement do
   def app(config = {})
 
     RailsMultisite::ConnectionManagement.config_filename = 'spec/fixtures/two_dbs.yml'
-    RailsMultisite::ConnectionManagement.load_settings!
 
     @app ||= Rack::Builder.new {
-      use RailsMultisite::ConnectionManagement, config
+      use RailsMultisite::Middleware, config
       map '/html' do
         run lambda { |env| [200, { 'Content-Type' => 'text/html' }, "<html><BODY><h1>Hi</h1></BODY>\n \t</html>"] }
       end
