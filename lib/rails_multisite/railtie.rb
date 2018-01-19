@@ -20,8 +20,6 @@ module RailsMultisite
         if ENV['RAILS_DB'].present?
           ConnectionManagement.establish_connection(db: ENV['RAILS_DB'], raise_on_missing: true)
         end
-      else
-        ConnectionManagement.set_current_db
       end
     end
   end
