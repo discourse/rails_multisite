@@ -1,3 +1,7 @@
+## 2.0.2
+
+  * with_connection should return result of block
+
 ## 1.1.2
 
   * raise error if RAILS_DB is specified yet missing

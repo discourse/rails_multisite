@@ -41,7 +41,14 @@ describe RailsMultisite::ConnectionManagement do
       it "has current hostname" do
         expect(conn.current_hostname).to eq('default.localhost')
       end
+    end
 
+    it 'yields self for with_connection' do
+      x = conn.with_connection("default") do
+        "hi"
+      end
+
+      expect(x).to eq("hi")
     end
 
   end
