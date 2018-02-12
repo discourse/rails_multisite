@@ -107,6 +107,10 @@ describe RailsMultisite::ConnectionManagement do
       it "is configured correctly" do
         expect(conn.current_db).to eq('second')
         expect(conn.current_hostname).to eq("second.localhost")
+
+        conn.config_filename = fixture_path('two_dbs_updated.yml')
+        expect(conn.current_db).to eq('second')
+        expect(conn.current_hostname).to eq("seconded.localhost")
       end
     end
 
