@@ -1,6 +1,11 @@
-## 2.0.3 - 12-02-2018
+## 2.0.4 - 12-02-2018
 
-  * Base `RailsMultisite::ConnectionManagement.current_hostname` on `@host_spec_cache`. 
+  * Fix bug where calling `RailsMultisite::ConnectionManagement.current_hostname`
+    with a `default` connection would throw an undefined method error.
+
+## 2.0.3 - yanked
+
+  * Base `RailsMultisite::ConnectionManagement.current_hostname` on `@host_spec_cache`.
 
 ## 2.0.2
 
