@@ -91,7 +91,9 @@ module RailsMultisite
     end
 
     def self.current_hostname
-      config = self.connection_spec(db: self.current_db).config
+      spec = @instance.connection_spec(db: self.current_db) if @instance
+      spec ||= ActiveRecord::Base.connection_pool.spec
+      config = spec.config
       config[:host_names].nil? ? config[:host] : config[:host_names].first
     end
 

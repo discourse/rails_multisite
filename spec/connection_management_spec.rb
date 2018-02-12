@@ -34,6 +34,10 @@ describe RailsMultisite::ConnectionManagement do
         ActiveRecord::Base.establish_connection
       end
 
+      after do
+        ActiveRecord::Base.connection_handler.clear_active_connections!
+      end
+
       it "has default current db" do
         expect(conn.current_db).to eq('default')
       end
@@ -54,6 +58,7 @@ describe RailsMultisite::ConnectionManagement do
   end
 
   it "inherits prepared_statements" do
+    ActiveRecord::Base.establish_connection
     ActiveRecord::Base.configurations[Rails.env]["prepared_statements"] = false
     conn.config_filename = fixture_path("two_dbs.yml")
     expect(conn.connection_spec(db: "second").config[:prepared_statements]).to be(false)
@@ -65,6 +70,10 @@ describe RailsMultisite::ConnectionManagement do
     before do
       conn.config_filename = fixture_path("two_dbs.yml")
       conn.establish_connection(db: RailsMultisite::ConnectionManagement::DEFAULT)
+    end
+
+    after do
+      ActiveRecord::Base.connection_handler.clear_active_connections!
     end
 
     it 'accepts a symbol for the db name' do
@@ -107,10 +116,6 @@ describe RailsMultisite::ConnectionManagement do
       it "is configured correctly" do
         expect(conn.current_db).to eq('second')
         expect(conn.current_hostname).to eq("second.localhost")
-
-        conn.config_filename = fixture_path('two_dbs_updated.yml')
-        expect(conn.current_db).to eq('second')
-        expect(conn.current_hostname).to eq("seconded.localhost")
       end
     end
 
@@ -154,6 +159,26 @@ describe RailsMultisite::ConnectionManagement do
         expect(lists[1]).to eq((1..5).map { |id| [id, "second"] })
         expect(lists[0]).to eq((1..5).map { |id| [id, "default"] })
 
+      end
+    end
+  end
+
+  describe '.current_hostname' do
+    before do
+      conn.config_filename = fixture_path("two_dbs.yml")
+    end
+
+    it 'should return the right hostname' do
+      with_connection('default') do
+        expect(conn.current_hostname).to eq('default.localhost')
+      end
+
+      with_connection('second') do
+        expect(conn.current_hostname).to eq('second.localhost')
+
+        conn.config_filename = fixture_path("two_dbs_updated.yml")
+
+        expect(conn.current_hostname).to eq('seconded.localhost')
       end
     end
   end
