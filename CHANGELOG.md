@@ -1,3 +1,7 @@
+## 2.0.3 - 12-02-2018
+
+  * Base `RailsMultisite::ConnectionManagement.current_hostname` on `@host_spec_cache`. 
+
 ## 2.0.2
 
   * with_connection should return result of block
