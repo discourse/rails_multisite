@@ -281,6 +281,8 @@ module RailsMultisite
 
     def current_db
       ActiveRecord::Base.connection_pool.spec.config[:db_key] || DEFAULT
+    rescue ActiveRecord::ConnectionNotEstablished
+      DEFAULT
     end
 
     def current_hostname
