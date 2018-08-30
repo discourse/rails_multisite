@@ -308,13 +308,13 @@ module RailsMultisite
 
     private
 
-      def handler_establish_connection(handler, spec)
-        if Rails::VERSION::MAJOR >= 5
-          handler.establish_connection(spec.config)
-        else
-          handler.establish_connection(ActiveRecord::Base, spec)
-        end
+    def handler_establish_connection(handler, spec)
+      if Rails::VERSION::MAJOR >= 5
+        handler.establish_connection(spec.config)
+      else
+        handler.establish_connection(ActiveRecord::Base, spec)
       end
+    end
 
   end
 end
