@@ -69,10 +69,10 @@ describe RailsMultisite::ConnectionManagement do
 
     before do
       conn.config_filename = fixture_path("two_dbs.yml")
+      conn.establish_connection(db: RailsMultisite::ConnectionManagement::DEFAULT)
     end
 
     after do
-      conn.establish_connection(db: RailsMultisite::ConnectionManagement::DEFAULT)
       ActiveRecord::Base.connection_handler.clear_active_connections!
     end
 
@@ -109,11 +109,13 @@ describe RailsMultisite::ConnectionManagement do
     end
 
     context 'second db' do
+      before do
+        conn.establish_connection(db: 'second')
+      end
+
       it "is configured correctly" do
-        with_connection('second') do
-          expect(conn.current_db).to eq('second')
-          expect(conn.current_hostname).to eq("second.localhost")
-        end
+        expect(conn.current_db).to eq('second')
+        expect(conn.current_hostname).to eq("second.localhost")
       end
     end
 
@@ -157,23 +159,6 @@ describe RailsMultisite::ConnectionManagement do
         expect(lists[1]).to eq((1..5).map { |id| [id, "second"] })
         expect(lists[0]).to eq((1..5).map { |id| [id, "default"] })
 
-      end
-    end
-  end
-
-  describe '.current_db' do
-    before do
-      conn.config_filename = fixture_path("two_dbs.yml")
-      ActiveRecord::Base.connection_handler.remove_connection('primary')
-    end
-
-    after do
-      conn.establish_connection(db: conn::DEFAULT)
-    end
-
-    describe 'when connection has not been established' do
-      it 'should default to the default db' do
-        expect(conn.current_db).to eq(conn::DEFAULT)
       end
     end
   end
