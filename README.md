@@ -71,6 +71,28 @@ RailsMultisite::ConnectionManagement.each_connection(threads: 5) do |db|
 end
 ```
 
+### Usage with Rails
+
+#### `RAILS_DB` Environment Variable
+
+When working with a Rails application, you can specify that DB that you'll like to work with by specifying the `RAILS_DB` ENV variable.
+
+```
+# config/multisite.yml
+
+db_one:
+  adapter: ...
+
+db_two:
+  adapater: ...
+```
+
+To get a Rails console that is connected to `db_one`:
+
+```
+RAILS_ENV=db_one rails console
+```
+
 
 ## Contributing
 
