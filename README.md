@@ -82,12 +82,14 @@ When working with a Rails application, you can specify the DB that you'll like t
 
 db_one:
   adapter: ...
+  database: some_database_1
 
 db_two:
   adapater: ...
+  database: some_database_2
 ```
 
-To get a Rails console that is connected to `db_one`:
+To get a Rails console that is connected to `some_database_1` database:
 
 ```
 RAILS_ENV=db_one rails console
