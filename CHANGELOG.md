@@ -1,3 +1,8 @@
+## 2.0.5 - 23-01-2019
+
+  * Fixed a bug where calling `RailsMultisite::ConnectionManagement#establish_connection`
+    with a `db: default, raise_on_missing: true` would raise an error.
+
 ## 2.0.4 - 12-02-2018
 
   * Fix bug where calling `RailsMultisite::ConnectionManagement.current_hostname`
