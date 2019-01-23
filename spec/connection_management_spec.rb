@@ -69,7 +69,11 @@ describe RailsMultisite::ConnectionManagement do
 
     before do
       conn.config_filename = fixture_path("two_dbs.yml")
-      conn.establish_connection(db: RailsMultisite::ConnectionManagement::DEFAULT)
+
+      conn.establish_connection(
+        db: RailsMultisite::ConnectionManagement::DEFAULT,
+        raise_on_missing: true
+      )
     end
 
     after do

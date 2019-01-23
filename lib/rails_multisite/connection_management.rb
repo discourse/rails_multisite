@@ -160,10 +160,14 @@ module RailsMultisite
     def establish_connection(opts)
       opts[:db] = opts[:db].to_s
 
-      spec = connection_spec(opts)
-      if (!spec && opts[:raise_on_missing])
-        raise "ERROR: #{opts[:db]} not found!"
+      if opts[:db] != DEFAULT
+        spec = connection_spec(opts)
+
+        if (!spec && opts[:raise_on_missing])
+          raise "ERROR: #{opts[:db]} not found!"
+        end
       end
+
       spec ||= @default_spec
       handler = nil
       if spec != @default_spec
