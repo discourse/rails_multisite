@@ -75,7 +75,7 @@ end
 
 #### `RAILS_DB` Environment Variable
 
-When working with a Rails application, you can specify that DB that you'll like to work with by specifying the `RAILS_DB` ENV variable.
+When working with a Rails application, you can specify the DB that you'll like to work with by specifying the `RAILS_DB` ENV variable.
 
 ```
 # config/multisite.yml
