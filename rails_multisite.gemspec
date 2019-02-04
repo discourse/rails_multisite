@@ -22,6 +22,6 @@ Gem::Specification.new do |gem|
   gem.required_ruby_version = ">=2.2.0"
 
   %w{activerecord railties}.each do |gem_name|
-    gem.add_dependency gem_name, "> 4.2", "< 6"
+    gem.add_dependency gem_name, "> 4.2", "< 7"
   end
 end

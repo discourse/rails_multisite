@@ -1,0 +1,10 @@
+source 'https://rubygems.org'
+
+group :test do
+  gem 'arel', git: 'https://github.com/rails/arel.git'
+  gem 'rails', git: 'https://github.com/rails/rails.git'
+  gem 'rspec'
+  gem 'sqlite3'
+  gem 'byebug'
+  gem 'rubocop'
+end

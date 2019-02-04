@@ -1,3 +1,7 @@
+## 2.0.7 - 04-02-2019
+
+ * Add support for Rails 6
+
 ## 2.0.6 - 23-01-2019
 
   * Fixed a bug where calling `RailsMultisite::ConnectionManagement#establish_connection`
