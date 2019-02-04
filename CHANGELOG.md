@@ -1,6 +1,7 @@
 ## 2.0.7 - 04-02-2019
 
  * Add support for Rails 6
+ * Remove support for Ruby 2.2 as it is EOL
 
 ## 2.0.6 - 23-01-2019
 
