@@ -1,25 +1,28 @@
+---
 language: ruby
 matrix:
   fast_finish: true
   include:
     - rvm: 2.3
-      gemfile:
-        - gemfiles/rails_4.gemfile
-        - gemfiles/rails_5.gemfile
+      gemfile: gemfiles/rails_4.gemfile
+    - rvm: 2.3
+      gemfile: gemfiles/rails_5.gemfile
     - rvm: 2.4
-      gemfile:
-        - gemfiles/rails_4.gemfile
-        - gemfiles/rails_5.gemfile
+      gemfile: gemfiles/rails_4.gemfile
+    - rvm: 2.4
+      gemfile: gemfiles/rails_5.gemfile
     - rvm: 2.5
-      gemfile:
-        - gemfiles/rails_4.gemfile
-        - gemfiles/rails_5.gemfile
-        - gemfiles/rails_master.gemfile
+      gemfile: gemfiles/rails_4.gemfile
+    - rvm: 2.5
+      gemfile: gemfiles/rails_5.gemfile
+    - rvm: 2.5
+      gemfile: gemfiles/rails_master.gemfile
     - rvm: 2.6
-      gemfile:
-        - gemfiles/rails_4.gemfile
-        - gemfiles/rails_5.gemfile
-        - gemfiles/rails_master.gemfile
+      gemfile: gemfiles/rails_4.gemfile
+    - rvm: 2.6
+      gemfile: gemfiles/rails_5.gemfile
+    - rvm: 2.6
+      gemfile: gemfiles/rails_master.gemfile
 
 cache: bundler
 
