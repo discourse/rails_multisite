@@ -32,4 +32,4 @@ install: bundle install --without development --retry=3 --jobs=3
 
 script:
   - bundle exec rubocop
-  - bundle exec rspec
+  - RACK_ENV=test RAILS_ENV=test bundle exec rspec
