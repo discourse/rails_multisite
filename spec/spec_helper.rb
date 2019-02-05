@@ -4,6 +4,8 @@ RSpec.configure do |config|
 
   require 'sqlite3'
   require 'byebug'
+  require 'active_record'
+  require 'active_record/base'
 
   class SQLite3::Database
     def self.query_log
@@ -26,7 +28,12 @@ RSpec.configure do |config|
   end
 
   config.before(:suite) do
-    ActiveRecord::Base.configurations["test"] = (YAML::load(File.open("spec/fixtures/database.yml"))['test'])
+    if defined?(ActiveRecord::DatabaseConfigurations)
+      configs = ActiveRecord::DatabaseConfigurations.new(YAML::load(File.open("spec/fixtures/database.yml")))
+      ActiveRecord::Base.configurations = configs
+    else
+      ActiveRecord::Base.configurations = YAML::load(File.open("spec/fixtures/database.yml"))
+    end
   end
 
 end

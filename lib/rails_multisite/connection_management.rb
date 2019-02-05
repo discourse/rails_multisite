@@ -129,7 +129,14 @@ module RailsMultisite
         v[:prepared_statements] = false if no_prepared_statements
       end
 
-      resolver = spec_klass::Resolver.new(configs)
+      resolve_configs = configs
+
+      # rails 6 needs to use a proper object for the resolver
+      if defined?(ActiveRecord::DatabaseConfigurations)
+        resolve_configs = ActiveRecord::DatabaseConfigurations.new(configs)
+      end
+
+      resolver = spec_klass::Resolver.new(resolve_configs)
       @db_spec_cache = Hash[*configs.map { |k, _| [k, resolver.spec(k.to_sym)] }.flatten]
 
       @host_spec_cache = {}
