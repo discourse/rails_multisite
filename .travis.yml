@@ -26,6 +26,9 @@ matrix:
 
 sudo: false
 
+before_install:
+  - gem install bundler -v '< 2' --conservative
+
 install: bundle install --without development --retry=3 --jobs=3
 
 script:
