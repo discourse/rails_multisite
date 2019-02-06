@@ -4,7 +4,7 @@ group :test do
   gem 'activerecord', '> 5', '< 6'
   gem 'railties', '> 5', '< 6'
   gem 'rspec'
-  gem 'sqlite3'
+  gem 'sqlite3', '1.3.6'
   gem 'byebug'
   gem 'rubocop'
 end
