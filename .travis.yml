@@ -1,33 +1,28 @@
 ---
 language: ruby
+
+gemfile:
+  - gemfiles/rails_4.gemfile
+  - gemfiles/rails_5.gemfile
+  - gemfiles/rails_master.gemfile
+
+rvm:
+  - 2.3
+  - 2.4
+  - 2.5
+  - 2.6
+
 matrix:
   fast_finish: true
-  include:
+  exclude:
     - rvm: 2.3
-      gemfile: gemfiles/rails_4.gemfile
-    - rvm: 2.3
-      gemfile: gemfiles/rails_5.gemfile
-    - rvm: 2.4
-      gemfile: gemfiles/rails_4.gemfile
-    - rvm: 2.4
-      gemfile: gemfiles/rails_5.gemfile
-    - rvm: 2.5
-      gemfile: gemfiles/rails_4.gemfile
-    - rvm: 2.5
-      gemfile: gemfiles/rails_5.gemfile
-    - rvm: 2.5
       gemfile: gemfiles/rails_master.gemfile
-    - rvm: 2.6
-      gemfile: gemfiles/rails_4.gemfile
-    - rvm: 2.6
-      gemfile: gemfiles/rails_5.gemfile
-    - rvm: 2.6
+    - rvm: 2.4
       gemfile: gemfiles/rails_master.gemfile
 
 sudo: false
 
-before_install:
-  - gem install bundler -v '< 2' --conservative
+cache: bundler
 
 install: bundle install --without development --retry=3 --jobs=3
 
