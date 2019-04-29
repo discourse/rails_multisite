@@ -1,4 +1,4 @@
-## 2.0.7 - 04-02-2019
+## 2.0.7 - 29-04-2019
 
  * Add support for Rails 6
  * Remove support for Ruby 2.2 as it is EOL
