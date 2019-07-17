@@ -92,7 +92,7 @@ db_two:
 To get a Rails console that is connected to `some_database_1` database:
 
 ```
-RAILS_ENV=db_one rails console
+RAILS_DB=db_one rails console
 ```
 
 
