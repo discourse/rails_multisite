@@ -35,7 +35,6 @@ mlp:
   host: dbhost
   pool: 5
   timeout: 5000
-  db_id: 1  # ensure db_id is unique for each site
   host_names:
     - discourse.equestria.com
     - discourse.equestria.internal
@@ -48,7 +47,6 @@ drwho:
   host: dbhost
   pool: 5
   timeout: 5000
-  db_id: 2 # ensure db_id is unique for each site
   host_names:
     - discuss.tardis.gallifrey
 ```

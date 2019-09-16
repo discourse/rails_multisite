@@ -14,7 +14,6 @@ task "multisite:generate:config" => :environment do
 #   host: localhost
 #   pool: 5
 #   timeout: 5000
-#   db_id: 1           # optionally include other settings you need
 #   host_names:
 #     - www.mysite.com
 #     - www.anothersite.com
