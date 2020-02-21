@@ -1,0 +1,12 @@
+second:
+  adapter: sqlite3
+  database: "tmp/db1.test"
+  host_names:
+    - second.localhost
+    - 2nd.localhost
+third:
+  adapter: sqlite3
+  database: "tmp/db2.test"
+  host_names:
+    - third.localhost
+    - 3rd.localhost

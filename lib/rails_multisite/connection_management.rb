@@ -35,7 +35,7 @@ module RailsMultisite
     end
 
     def self.reload
-      @instance = new(instance.config_filename)
+      @instance.reload
     end
 
     def self.has_db?(db)
@@ -118,6 +118,15 @@ module RailsMultisite
     def initialize(config_filename)
       @config_filename = config_filename
 
+      @connection_handlers = {}
+      @db_spec_cache = {}
+
+      load_config!
+
+      @established_default = false
+    end
+
+    def load_config!
       spec_klass = ActiveRecord::ConnectionAdapters::ConnectionSpecification
       configs = YAML::load(File.open(@config_filename))
 
@@ -137,10 +146,22 @@ module RailsMultisite
       end
 
       resolver = spec_klass::Resolver.new(resolve_configs)
-      @db_spec_cache = Hash[*configs.map { |k, _| [k, resolver.spec(k.to_sym)] }.flatten]
+      
+      new_db_specs = Hash[*configs.map { |k, _| [k, resolver.spec(k.to_sym)] }.flatten]
+
+      new_db_specs.each do |k,v|
+        # Only update specs which have changed
+        if v&.to_hash != @db_spec_cache[k]&.to_hash
+          old_spec = @db_spec_cache[k]
+          @db_spec_cache[k] = v
+          @connection_handlers[old_spec] = nil # A handler for this spec will never be needed again
+        end
+      end
+
+      removed_dbs = @db_spec_cache.keys - new_db_specs.keys
+      @db_spec_cache.delete_if {|k,v| removed_dbs.include?(k)}
 
       @host_spec_cache = {}
-
       configs.each do |k, v|
         next unless v["host_names"]
         v["host_names"].each do |host|
@@ -154,9 +175,10 @@ module RailsMultisite
       end
 
       @default_connection_handler = ActiveRecord::Base.connection_handler
+    end
 
-      @connection_handlers = {}
-      @established_default = false
+    def reload
+      load_config!
     end
 
     def has_db?(db)

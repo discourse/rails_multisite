@@ -166,6 +166,54 @@ describe RailsMultisite::ConnectionManagement do
 
       end
     end
+
+    describe "reloading" do
+      context "when config is unchanged" do
+        it "maintains the same connection handlers" do
+          default_spec = conn.connection_spec(db: "default")
+          second_spec = conn.connection_spec(db: "second")
+
+          conn.reload
+
+          expect(default_spec).to eq(conn.connection_spec(db: "default"))
+          expect(second_spec).to eq(conn.connection_spec(db: "second"))
+        end
+      end
+
+      context "when site config is updated" do
+        it "updates that connection handler" do
+          default_spec = conn.connection_spec(db: "default")
+          second_spec = conn.connection_spec(db: "second")
+
+          conn.instance.instance_variable_set(:@config_filename, fixture_path("two_dbs_updated.yml"))
+          conn.reload
+
+          expect(default_spec).to eq(conn.connection_spec(db: "default"))
+          expect(second_spec).not_to eq(conn.connection_spec(db: "second"))
+        end
+      end
+
+      context "when sites are added and removed" do
+        it "adds and removes connection specs" do
+          default_spec = conn.connection_spec(db: "default")
+          second_spec = conn.connection_spec(db: "second")
+
+          conn.instance.instance_variable_set(:@config_filename, fixture_path("three_dbs.yml"))
+          conn.reload
+
+          expect(default_spec).to eq(conn.connection_spec(db: "default"))
+          expect(second_spec).to eq(conn.connection_spec(db: "second"))
+          expect(conn.connection_spec(db: "third")).not_to eq(nil)
+
+          conn.instance.instance_variable_set(:@config_filename, fixture_path("two_dbs.yml"))
+          conn.reload
+
+          expect(default_spec).to eq(conn.connection_spec(db: "default"))
+          expect(second_spec).to eq(conn.connection_spec(db: "second"))
+          expect(conn.connection_spec(db: "third")).to eq(nil)
+        end
+      end
+    end
   end
 
   describe '.current_hostname' do
