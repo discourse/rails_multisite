@@ -4,6 +4,7 @@ module RailsMultisite
   class ConnectionManagement
 
     DEFAULT = 'default'
+    SPEC_KLASS = ActiveRecord::ConnectionAdapters::ConnectionSpecification
 
     def self.default_config_filename
       File.absolute_path(Rails.root.to_s + "/config/multisite.yml")
@@ -121,13 +122,14 @@ module RailsMultisite
       @connection_handlers = {}
       @db_spec_cache = {}
 
-      load_config!
-
+      @default_spec = SPEC_KLASS::Resolver.new(ActiveRecord::Base.configurations).spec(Rails.env.to_sym)
+      @default_connection_handler = ActiveRecord::Base.connection_handler
       @established_default = false
+
+      load_config!
     end
 
     def load_config!
-      spec_klass = ActiveRecord::ConnectionAdapters::ConnectionSpecification
       configs = YAML::load(File.open(@config_filename))
 
       no_prepared_statements = ActiveRecord::Base.configurations[Rails.env]["prepared_statements"] == false
@@ -145,36 +147,40 @@ module RailsMultisite
         resolve_configs = ActiveRecord::DatabaseConfigurations.new(configs)
       end
 
-      resolver = spec_klass::Resolver.new(resolve_configs)
+      resolver = SPEC_KLASS::Resolver.new(resolve_configs)
       
-      new_db_specs = Hash[*configs.map { |k, _| [k, resolver.spec(k.to_sym)] }.flatten]
-
-      new_db_specs.each do |k,v|
-        # Only update specs which have changed
-        if v&.to_hash != @db_spec_cache[k]&.to_hash
-          old_spec = @db_spec_cache[k]
-          @db_spec_cache[k] = v
-          @connection_handlers[old_spec] = nil # A handler for this spec will never be needed again
+      # Build a hash of db name => spec
+      new_db_spec_cache = Hash[*configs.map { |k, _| [k, resolver.spec(k.to_sym)] }.flatten]
+      new_db_spec_cache.each do |k,v|
+        # If spec already existed, use the old version
+        if v&.to_hash == @db_spec_cache[k]&.to_hash
+          new_db_spec_cache[k] = @db_spec_cache[k]
         end
       end
 
-      removed_dbs = @db_spec_cache.keys - new_db_specs.keys
-      @db_spec_cache.delete_if {|k,v| removed_dbs.include?(k)}
-
-      @host_spec_cache = {}
+      # Build a hash of hostname => spec
+      new_host_spec_cache = {}
       configs.each do |k, v|
         next unless v["host_names"]
         v["host_names"].each do |host|
-          @host_spec_cache[host] = @db_spec_cache[k]
+          new_host_spec_cache[host] = new_db_spec_cache[k]
         end
       end
 
-      @default_spec = spec_klass::Resolver.new(ActiveRecord::Base.configurations).spec(Rails.env.to_sym)
+      # Add the default hostnames as well
       ActiveRecord::Base.configurations[Rails.env]["host_names"].each do |host|
-        @host_spec_cache[host] = @default_spec
+        new_host_spec_cache[host] = @default_spec
       end
+      
+      removed_dbs = @db_spec_cache.keys - new_db_spec_cache.keys
+      removed_specs = @db_spec_cache.values_at(*removed_dbs)
 
-      @default_connection_handler = ActiveRecord::Base.connection_handler
+      @host_spec_cache = new_host_spec_cache
+      @db_spec_cache = new_db_spec_cache
+
+      # Clean up connection handler cache. 
+      # (@connection_handlers is a hash of spec => handler)
+      removed_specs.each{ |s| @connection_handlers.delete(s) }
     end
 
     def reload
