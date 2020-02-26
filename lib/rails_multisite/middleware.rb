@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module RailsMultisite
   class Middleware
     def initialize(app, config = nil)

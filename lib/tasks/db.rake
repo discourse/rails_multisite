@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 desc "migrate all sites in tier"
 task "multisite:migrate" => :environment do
   RailsMultisite::ConnectionManagement.each_connection do |db|

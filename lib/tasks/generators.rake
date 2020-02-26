@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 desc "generate multisite config file (if missing)"
 task "multisite:generate:config" => :environment do
   filename = RailsMultisite::ConnectionManagement.config_filename
