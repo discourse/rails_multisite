@@ -24,6 +24,8 @@ matrix:
       gemfile: gemfiles/rails_6.gemfile
     - rvm: 2.4
       gemfile: gemfiles/rails_6.gemfile
+  allow_failures:
+    - gemfile: gemfiles/rails_master.gemfile
 
 sudo: false
 
