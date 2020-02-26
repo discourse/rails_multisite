@@ -12,6 +12,7 @@ end
 group :development, :test do
   gem 'byebug'
   gem 'rubocop'
+  gem 'rubocop-discourse'
 end
 
 group :test do
