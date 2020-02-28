@@ -150,10 +150,10 @@ module RailsMultisite
       end
 
       resolver = SPEC_KLASS::Resolver.new(resolve_configs)
-      
+
       # Build a hash of db name => spec
       new_db_spec_cache = Hash[*configs.map { |k, _| [k, resolver.spec(k.to_sym)] }.flatten]
-      new_db_spec_cache.each do |k,v|
+      new_db_spec_cache.each do |k, v|
         # If spec already existed, use the old version
         if v&.to_hash == @db_spec_cache[k]&.to_hash
           new_db_spec_cache[k] = @db_spec_cache[k]
@@ -173,16 +173,16 @@ module RailsMultisite
       ActiveRecord::Base.configurations[Rails.env]["host_names"].each do |host|
         new_host_spec_cache[host] = @default_spec
       end
-      
+
       removed_dbs = @db_spec_cache.keys - new_db_spec_cache.keys
       removed_specs = @db_spec_cache.values_at(*removed_dbs)
 
       @host_spec_cache = new_host_spec_cache
       @db_spec_cache = new_db_spec_cache
 
-      # Clean up connection handler cache. 
+      # Clean up connection handler cache.
       # (@connection_handlers is a hash of spec => handler)
-      removed_specs.each{ |s| @connection_handlers.delete(s) }
+      removed_specs.each { |s| @connection_handlers.delete(s) }
     end
 
     def reload
