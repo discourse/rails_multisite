@@ -126,6 +126,8 @@ module RailsMultisite
       @default_connection_handler = ActiveRecord::Base.connection_handler
       @established_default = false
 
+      @reload_mutex = Mutex.new
+
       load_config!
     end
 
@@ -184,7 +186,9 @@ module RailsMultisite
     end
 
     def reload
-      load_config!
+      @reload_mutex.synchronize do
+        load_config!
+      end
     end
 
     def has_db?(db)
