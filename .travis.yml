@@ -2,13 +2,11 @@
 language: ruby
 
 gemfile:
-  - gemfiles/rails_4.gemfile
   - gemfiles/rails_5.gemfile
   - gemfiles/rails_6.gemfile
   - gemfiles/rails_master.gemfile
 
 rvm:
-  - 2.3
   - 2.4
   - 2.5
   - 2.6
@@ -16,12 +14,8 @@ rvm:
 matrix:
   fast_finish: true
   exclude:
-    - rvm: 2.3
-      gemfile: gemfiles/rails_master.gemfile
     - rvm: 2.4
       gemfile: gemfiles/rails_master.gemfile
-    - rvm: 2.3
-      gemfile: gemfiles/rails_6.gemfile
     - rvm: 2.4
       gemfile: gemfiles/rails_6.gemfile
   allow_failures:

@@ -1,3 +1,9 @@
+## 2.1.0 - 28-02-2020
+
+ * When reloading, only update changed connection specs. This means that ActiveRecord can keep the existing SchemaCache for unchanged connections
+ * Remove support for Rails 4
+ * Remove support for Ruby 2.3
+
 ## 2.0.7 - 29-04-2019
 
  * Add support for Rails 6
