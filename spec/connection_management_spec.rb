@@ -236,4 +236,20 @@ describe RailsMultisite::ConnectionManagement do
     end
   end
 
+  describe '.current_db_hostnames' do
+    before do
+      conn.config_filename = fixture_path("two_dbs.yml")
+    end
+
+    it 'should return the right hostname' do
+      with_connection('default') do
+        expect(conn.current_db_hostnames).to contain_exactly('default.localhost')
+      end
+
+      with_connection('second') do
+        expect(conn.current_db_hostnames).to contain_exactly('2nd.localhost', 'second.localhost')
+      end
+    end
+  end
+
 end
