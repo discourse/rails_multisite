@@ -1,3 +1,7 @@
+## 2.1.1 - 13-03-2020
+
+ * Add `current_db_hostnames` to get a listing of current db hostnames
+
 ## 2.1.0 - 28-02-2020
 
  * When reloading, only update changed connection specs. This means that ActiveRecord can keep the existing SchemaCache for unchanged connections
