@@ -1,3 +1,8 @@
+## 2.1.2 - 08-05-2020
+
+ * Add support for `Rails.configuration.skip_multisite_middleware`, if configured railstie will avoid
+ all configuration of middleware.
+
 ## 2.1.1 - 13-03-2020
 
  * Add `current_db_hostnames` to get a listing of current db hostnames
