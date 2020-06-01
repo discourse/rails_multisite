@@ -11,6 +11,10 @@ module RailsMultisite
     end
 
     def self.clear_settings!
+      @instance&.db_spec_cache&.each do |key, spec|
+        @instance.connection_handlers.delete(self.handler_key(spec))
+      end
+
       @instance = nil
     end
 
@@ -121,14 +125,32 @@ module RailsMultisite
       end
     end
 
-    attr_reader :config_filename
+    def self.handler_key(spec)
+      @handler_key_suffix ||= begin
+        if ActiveRecord::Base.respond_to?(:writing_role)
+          "_#{ActiveRecord::Base.writing_role}"
+        else
+          ""
+        end
+      end
+
+      :"#{spec.name}#{@handler_key_suffix}"
+    end
+
+    attr_reader :config_filename, :db_spec_cache, :connection_handlers
 
     def initialize(config_filename)
       @config_filename = config_filename
 
-      @connection_handlers = {}
-      @db_spec_cache = {}
+      @connection_handlers = begin
+        if ActiveRecord::Base.respond_to?(:connection_handlers)
+          ActiveRecord::Base.connection_handlers
+        else
+          {}
+        end
+      end
 
+      @db_spec_cache = {}
       @default_spec = SPEC_KLASS::Resolver.new(ActiveRecord::Base.configurations).spec(Rails.env.to_sym)
       @default_connection_handler = ActiveRecord::Base.connection_handler
       @established_default = false
@@ -188,8 +210,7 @@ module RailsMultisite
       @db_spec_cache = new_db_spec_cache
 
       # Clean up connection handler cache.
-      # (@connection_handlers is a hash of spec => handler)
-      removed_specs.each { |s| @connection_handlers.delete(s) }
+      removed_specs.each { |s| @connection_handlers.delete(handler_key(s)) }
     end
 
     def reload
@@ -217,11 +238,11 @@ module RailsMultisite
       spec ||= @default_spec
       handler = nil
       if spec != @default_spec
-        handler = @connection_handlers[spec]
+        handler = @connection_handlers[handler_key(spec)]
         unless handler
           handler = ActiveRecord::ConnectionAdapters::ConnectionHandler.new
           handler_establish_connection(handler, spec)
-          @connection_handlers[spec] = handler
+          @connection_handlers[handler_key(spec)] = handler
         end
       else
         handler = @default_connection_handler
@@ -360,6 +381,10 @@ module RailsMultisite
 
     def handler_establish_connection(handler, spec)
       handler.establish_connection(spec.config)
+    end
+
+    def handler_key(spec)
+      self.class.handler_key(spec)
     end
 
   end
