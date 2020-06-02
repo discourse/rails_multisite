@@ -1,3 +1,7 @@
+## 2.2.2 - 02-06-2020
+
+ * Use `ActiveRecord::Base.connection_handlers` to keep track of all connection handlers.
+
 ## 2.1.2 - 08-05-2020
 
  * Add support for `Rails.configuration.skip_multisite_middleware`, if configured railstie will avoid
