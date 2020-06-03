@@ -20,7 +20,7 @@ describe RailsMultisite::ConnectionManagement do
     conn.establish_connection(db: db)
     yield ActiveRecord::Base.connection.raw_connection
   ensure
-    ActiveRecord::Base.connection_handler.clear_active_connections!
+    ActiveRecord::Base.connection_handler.clear_all_connections!
   end
 
   context 'default' do
@@ -36,7 +36,7 @@ describe RailsMultisite::ConnectionManagement do
       end
 
       after do
-        ActiveRecord::Base.connection_handler.clear_active_connections!
+        ActiveRecord::Base.connection_handler.clear_all_connections!
       end
 
       it "has default current db" do
@@ -78,7 +78,7 @@ describe RailsMultisite::ConnectionManagement do
     end
 
     after do
-      ActiveRecord::Base.connection_handler.clear_active_connections!
+      ActiveRecord::Base.connection_handler.clear_all_connections!
     end
 
     it 'accepts a symbol for the db name' do

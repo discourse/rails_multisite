@@ -246,8 +246,12 @@ module RailsMultisite
         end
       else
         handler = @default_connection_handler
+
         if !@established_default
-          handler_establish_connection(handler, spec)
+          if !handler.retrieve_connection_pool(ActiveRecord::Base.connection_specification_name)&.connected?
+            handler_establish_connection(handler, spec)
+          end
+
           @established_default = true
         end
       end
