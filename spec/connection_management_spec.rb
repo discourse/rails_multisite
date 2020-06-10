@@ -27,16 +27,19 @@ describe RailsMultisite::ConnectionManagement do
   end
 
   context 'default' do
+    before do
+      ActiveRecord::Base.establish_connection
+    end
+
+    after do
+      ActiveRecord::Base.remove_connection
+    end
 
     it 'has correct all_dbs' do
       expect(conn.all_dbs).to eq(['default'])
     end
 
     context 'current' do
-      before do
-        conn.establish_connection(db: 'default')
-      end
-
       after do
         ActiveRecord::Base.connection_handler.clear_all_connections!
       end
