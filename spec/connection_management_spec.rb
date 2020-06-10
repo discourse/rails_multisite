@@ -40,10 +40,6 @@ describe RailsMultisite::ConnectionManagement do
     end
 
     context 'current' do
-      after do
-        ActiveRecord::Base.connection_handler.clear_all_connections!
-      end
-
       it "has default current db" do
         expect(conn.current_db).to eq('default')
       end
