@@ -35,11 +35,10 @@ describe RailsMultisite::ConnectionManagement do
     context 'current' do
       before do
         conn.establish_connection(db: 'default')
-        ActiveRecord::Base.establish_connection
       end
 
       after do
-        ActiveRecord::Base.connection_handler.clear_active_connections!
+        ActiveRecord::Base.connection_handler.clear_all_connections!
       end
 
       it "has default current db" do
@@ -81,7 +80,7 @@ describe RailsMultisite::ConnectionManagement do
     end
 
     after do
-      ActiveRecord::Base.connection_handler.clear_active_connections!
+      ActiveRecord::Base.connection_handler.clear_all_connections!
     end
 
     it 'accepts a symbol for the db name' do
@@ -119,13 +118,11 @@ describe RailsMultisite::ConnectionManagement do
     end
 
     context 'second db' do
-      before do
-        conn.establish_connection(db: 'second')
-      end
-
       it "is configured correctly" do
-        expect(conn.current_db).to eq('second')
-        expect(conn.current_hostname).to eq("second.localhost")
+        with_connection('second') do
+          expect(conn.current_db).to eq('second')
+          expect(conn.current_hostname).to eq("second.localhost")
+        end
       end
     end
 
