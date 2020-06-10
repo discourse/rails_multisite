@@ -240,4 +240,31 @@ describe RailsMultisite::ConnectionManagement do
     end
   end
 
+  describe '.default_connection_handler=' do
+    before do
+      conn.config_filename = fixture_path("two_dbs.yml")
+    end
+
+    it 'should raise the right error if attempting to assign an invalid argument' do
+      expect do
+        conn.default_connection_handler = 'test'
+      end.to raise_error(ArgumentError)
+    end
+
+    it 'should allow the default connection handler to be assigned' do
+      default_handler = ActiveRecord::Base.connection_handler
+      new_handler = ActiveRecord::ConnectionAdapters::ConnectionHandler.new
+
+      conn.default_connection_handler = new_handler
+      conn.establish_connection(db: described_class::DEFAULT)
+
+      expect(ActiveRecord::Base.connection_handler).to eq(new_handler)
+
+      conn.default_connection_handler = default_handler
+      conn.establish_connection(db: described_class::DEFAULT)
+
+      expect(ActiveRecord::Base.connection_handler).to eq(default_handler)
+    end
+  end
+
 end

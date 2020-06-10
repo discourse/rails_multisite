@@ -137,7 +137,18 @@ module RailsMultisite
       :"#{spec.name}#{@handler_key_suffix}"
     end
 
+    def self.default_connection_handler=(connection_handler)
+      if @instance
+        unless connection_handler.is_a?(ActiveRecord::ConnectionAdapters::ConnectionHandler)
+          raise ArgumentError.new("Invalid connection handler")
+        end
+
+        @instance.default_connection_handler = connection_handler
+      end
+    end
+
     attr_reader :config_filename, :db_spec_cache, :connection_handlers
+    attr_writer :default_connection_handler
 
     def initialize(config_filename)
       @config_filename = config_filename
@@ -153,7 +164,6 @@ module RailsMultisite
       @db_spec_cache = {}
       @default_spec = SPEC_KLASS::Resolver.new(ActiveRecord::Base.configurations).spec(Rails.env.to_sym)
       @default_connection_handler = ActiveRecord::Base.connection_handler
-      @established_default = false
 
       @reload_mutex = Mutex.new
 
@@ -246,10 +256,6 @@ module RailsMultisite
         end
       else
         handler = @default_connection_handler
-        if !@established_default
-          handler_establish_connection(handler, spec)
-          @established_default = true
-        end
       end
 
       ActiveRecord::Base.connection_handler = handler
