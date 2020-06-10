@@ -17,10 +17,13 @@ describe RailsMultisite::ConnectionManagement do
   end
 
   def with_connection(db)
+    original_connection_handler = ActiveRecord::Base.connection_handler
+    original_connection_handler.clear_active_connections!
     conn.establish_connection(db: db)
     yield ActiveRecord::Base.connection.raw_connection
   ensure
     ActiveRecord::Base.connection_handler.clear_active_connections!
+    ActiveRecord::Base.connection_handler = original_connection_handler
   end
 
   context 'default' do
@@ -85,6 +88,8 @@ describe RailsMultisite::ConnectionManagement do
       with_connection(:second) do
         expect(conn.current_db).to eq('second')
       end
+
+      expect(conn.current_db).to eq('default')
     end
 
     it "can exectue a queries concurrently per db" do
