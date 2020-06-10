@@ -65,6 +65,8 @@ describe RailsMultisite::ConnectionManagement do
     conn.config_filename = fixture_path("two_dbs.yml")
     expect(conn.connection_spec(db: "second").config[:prepared_statements]).to be(false)
     ActiveRecord::Base.configurations[Rails.env]["prepared_statements"] = nil
+  ensure
+    ActiveRecord::Base.remove_connection
   end
 
   context 'two dbs' do
