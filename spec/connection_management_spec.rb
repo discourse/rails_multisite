@@ -12,8 +12,13 @@ describe RailsMultisite::ConnectionManagement do
     File.expand_path("fixtures/#{name}", File.dirname(__FILE__))
   end
 
+  before do
+    ActiveRecord::Base.establish_connection
+  end
+
   after do
     conn.clear_settings!
+    ActiveRecord::Base.remove_connection
   end
 
   def with_connection(db)
@@ -27,14 +32,6 @@ describe RailsMultisite::ConnectionManagement do
   end
 
   context 'default' do
-    before do
-      ActiveRecord::Base.establish_connection
-    end
-
-    after do
-      ActiveRecord::Base.remove_connection
-    end
-
     it 'has correct all_dbs' do
       expect(conn.all_dbs).to eq(['default'])
     end
@@ -60,28 +57,16 @@ describe RailsMultisite::ConnectionManagement do
   end
 
   it "inherits prepared_statements" do
-    ActiveRecord::Base.establish_connection
     ActiveRecord::Base.configurations[Rails.env]["prepared_statements"] = false
     conn.config_filename = fixture_path("two_dbs.yml")
     expect(conn.connection_spec(db: "second").config[:prepared_statements]).to be(false)
     ActiveRecord::Base.configurations[Rails.env]["prepared_statements"] = nil
-  ensure
-    ActiveRecord::Base.remove_connection
   end
 
   context 'two dbs' do
 
     before do
       conn.config_filename = fixture_path("two_dbs.yml")
-
-      conn.establish_connection(
-        db: RailsMultisite::ConnectionManagement::DEFAULT,
-        raise_on_missing: true
-      )
-    end
-
-    after do
-      ActiveRecord::Base.connection_handler.clear_all_connections!
     end
 
     it 'accepts a symbol for the db name' do
