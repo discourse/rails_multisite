@@ -1,3 +1,7 @@
+## 2.3.0 - 10-06-2020
+
+ * Allow the default connection handler to be changed.
+
 ## 2.2.2 - 02-06-2020
 
  * Use `ActiveRecord::Base.connection_handlers` to keep track of all connection handlers.
