@@ -1,3 +1,10 @@
+## 2.4.0 - 15-09-2020
+
+ * __ws parameter is only supported for RailsMultisite::ConnectionManagement.asset_hostname
+   previously we would support this for any hostname and careful attackers could use this
+   maliciously. Additionally, if __ws is used we will always strip request cookies as an
+   extra security measure.
+
 ## 2.3.0 - 10-06-2020
 
  * Allow the default connection handler to be changed.

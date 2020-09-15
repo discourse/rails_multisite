@@ -35,6 +35,14 @@ module RailsMultisite
       end
     end
 
+    def self.asset_hostname
+      @asset_hostname
+    end
+
+    def self.asset_hostname=(h)
+      @asset_hostname = h
+    end
+
     def self.config_filename
       @instance.config_filename
     end
@@ -370,7 +378,14 @@ module RailsMultisite
       end
 
       request = Rack::Request.new(env)
-      host = request['__ws'] || request.host
+
+      host =
+        if request['__ws'] && request.host == self.class.asset_hostname
+          request.cookies.clear
+          request['__ws']
+        else
+          request.host
+        end
 
       env["RAILS_MULTISITE_HOST"] = host
     end

@@ -17,13 +17,32 @@ describe RailsMultisite::Middleware do
     @app ||= Rack::Builder.new {
       use RailsMultisite::Middleware, config
       map '/html' do
-        run lambda { |env| [200, { 'Content-Type' => 'text/html' }, "<html><BODY><h1>Hi</h1></BODY>\n \t</html>"] }
+        run (proc do |env|
+          request = Rack::Request.new(env)
+          [200, { 'Content-Type' => 'text/html' }, "<html><BODY><h1>#{request.hostname}</h1></BODY>\n \t</html>"]
+        end)
       end
     }.to_app
   end
 
   after do
     RailsMultisite::ConnectionManagement.clear_settings!
+  end
+
+  describe '__ws lookup support' do
+    it 'returns 200 for valid site' do
+
+      RailsMultisite::ConnectionManagement.asset_hostname = "default.localhost"
+
+      get 'http://second.localhost/html?__ws=default.localhost'
+      expect(last_response).to be_ok
+      expect(last_response).not_to include("second.localhost")
+
+      get 'http://default.localhost/html?__ws=second.localhost'
+      expect(last_response).to be_ok
+      expect(last_response).not_to include("second.hostname")
+    end
+
   end
 
   describe 'can whitelist a 404 to go to default site' do
