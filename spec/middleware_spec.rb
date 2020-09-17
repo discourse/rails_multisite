@@ -36,11 +36,13 @@ describe RailsMultisite::Middleware do
 
       get 'http://second.localhost/html?__ws=default.localhost'
       expect(last_response).to be_ok
-      expect(last_response).not_to include("second.localhost")
+      expect(last_response.body).to include("second.localhost")
+      expect(last_response.body).to_not include("default.localhost")
 
       get 'http://default.localhost/html?__ws=second.localhost'
       expect(last_response).to be_ok
-      expect(last_response).not_to include("second.hostname")
+      expect(last_response.body).to include("default.localhost")
+      expect(last_response.body).to_not include("second.localhost")
     end
 
   end
