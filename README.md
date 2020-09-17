@@ -95,7 +95,7 @@ RAILS_DB=db_one rails console
 
 ### CDN origin support
 
-To avoid needing to configure many origins you can consider using `RailsMultisite::ConnectionManagement.asset_hostname`
+To avoid needing to configure many origins you can consider using `RailsMultisite::ConnectionManagement.asset_hostnames`
 
 When configured, requests to `asset_hostname`?__ws=another.host.name will be re-routed to the correct site. Cookies will
 be stripped on all incoming requests.
@@ -103,7 +103,7 @@ be stripped on all incoming requests.
 Example:
 
 - Multisite serves `sub.example.com` and `assets.example.com`
-- `RailsMultisite::ConnectionManagement.asset_hostname = 'assets.example.com'`
+- `RailsMultisite::ConnectionManagement.asset_hostnames = ['assets.example.com']`
 - Requests to `https://assets.example.com/route/?__ws=sub.example.com` will be routed to the `sub.example.com`
 
 

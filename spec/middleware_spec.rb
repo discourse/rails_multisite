@@ -32,7 +32,7 @@ describe RailsMultisite::Middleware do
   describe '__ws lookup support' do
     it 'returns 200 for valid site' do
 
-      RailsMultisite::ConnectionManagement.asset_hostname = "default.localhost"
+      RailsMultisite::ConnectionManagement.asset_hostnames = ["b.com", "default.localhost"]
 
       get 'http://second.localhost/html?__ws=default.localhost'
       expect(last_response).to be_ok
@@ -43,6 +43,13 @@ describe RailsMultisite::Middleware do
       expect(last_response).to be_ok
       expect(last_response.body).to include("default.localhost")
       expect(last_response.body).to_not include("second.localhost")
+
+      RailsMultisite::ConnectionManagement.asset_hostnames = nil
+
+      get 'http://second.localhost/html?__ws=default.localhost'
+      expect(last_response).to be_ok
+      expect(last_response.body).to include("second.localhost")
+      expect(last_response.body).to_not include("default.localhost")
     end
 
   end
