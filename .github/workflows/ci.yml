@@ -36,6 +36,7 @@ jobs:
     steps:
       - name: Update env values
         if: "matrix.experimental == true"
+        run: "echo 1"
         env:
           RAILS_MULTISITE_OK_TO_FAIL: "Ok to fail"
       - uses: actions/checkout@v2
