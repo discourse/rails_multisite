@@ -9,36 +9,30 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    continue-on-error: ${{ matrix.experimental }}
-    name: "Ruby ${{ matrix.ruby }} - Rails ${{ matrix.rails }} - ${{ env.RAILS_MULTISITE_OK_TO_FAIL }}"
+    continue-on-error: ${{ matrix.experimental == 'OK to fail' }}
+    name: "Ruby ${{ matrix.ruby }} / ${{ matrix.gemfile }} / ${{ matrix.experimental }}"
     env:
-      RAILS_MULTISITE_GEMFILE: gemfiles/rails_${{ matrix.rails }}.gemfile
-      RAILS_MULTISITE_OK_TO_FAIL: ""
+      RAILS_MULTISITE_GEMFILE: gemfiles/${{ matrix.gemfile }}.gemfile
     strategy:
       fail-fast: false
       matrix:
         ruby: ["2.4", "2.5", "2.6", "2.7"]
-        rails: ["5", "6"]
-        experimental: [false]
+        gemfile: ["rails_5", "rails_6"]
+        experimental: [""]
         exclude:
           - ruby: 2.4
-            rails: 6
+            gemfile: rails_6
         include:
           - ruby: "2.5"
-            rails: master
-            experimental: true
+            gemfile: rails_master
+            experimental: "OK to fail"
           - ruby: "2.6"
-            rails: master
-            experimental: true
+            gemfile: rails_master
+            experimental: "OK to fail"
           - ruby: "2.7"
-            rails: master
-            experimental: true
+            gemfile: rails_master
+            experimental: "OK to fail"
     steps:
-      - name: Update env values
-        if: "matrix.experimental == true"
-        run: "echo 1"
-        env:
-          RAILS_MULTISITE_OK_TO_FAIL: "Ok to fail"
       - uses: actions/checkout@v2
       - uses: actions/setup-ruby@v1
         with:
@@ -47,9 +41,9 @@ jobs:
         uses: actions/cache@v2
         with:
           path: vendor/bundle
-          key: ${{ runner.os }}-${{ matrix.ruby }}-${{ matrix.rails }}-gems-${{ hashFiles('**/Gemfile.lock') }}
+          key: ${{ runner.os }}-${{ matrix.ruby }}-${{ matrix.gemfile }}-gems-${{ hashFiles('**/Gemfile.lock') }}
           restore-keys: |
-            ${{ runner.os }}-${{ matrix.ruby }}-${{ matrix.rails }}-gems-
+            ${{ runner.os }}-${{ matrix.ruby }}-${{ matrix.gemfile }}-gems-
       - name: Setup gems
         run: |
           bundle config set path vendor/bundle
