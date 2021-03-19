@@ -7,7 +7,7 @@ end
 
 if rails_master?
   gem 'arel', git: 'https://github.com/rails/arel.git'
-  gem 'rails', git: 'https://github.com/rails/rails.git'
+  gem 'rails', git: 'https://github.com/rails/rails.git', branch: 'main'
 end
 
 group :development, :test do
