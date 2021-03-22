@@ -18,13 +18,13 @@ describe RailsMultisite::Middleware do
     @app ||= Rack::Builder.new {
       use RailsMultisite::Middleware, config
       map '/html' do
-        run (proc do |env|
+        run(proc do |env|
           request = Rack::Request.new(env)
           [200, { 'Content-Type' => 'text/html' }, "<html><BODY><h1>#{request.hostname}</h1></BODY>\n \t</html>"]
         end)
       end
       map '/salts' do
-        run (proc do |env|
+        run(proc do |env|
           [200, { 'Content-Type' => 'application/json' }, env.slice(*RailsMultisite::CookieSalt::COOKIE_SALT_KEYS).to_json]
         end)
       end
