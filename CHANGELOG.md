@@ -1,3 +1,8 @@
+## 5.0.1 - 2024-03-12
+
+ * Small refactor of ConnectionManagement
+ * Drop support for Rails < 6.1
+
 ## 5.0.0 - 2023-05-31
 
  * Add support for Rails 7.1+

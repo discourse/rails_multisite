@@ -4,3 +4,6 @@ AllCops:
   Exclude:
    - gemfiles/vendor/bundle/**/*
    - vendor/bundle/**/*
+
+Discourse/Plugins:
+  Enabled: false
