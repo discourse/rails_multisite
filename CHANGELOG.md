@@ -1,3 +1,8 @@
+## 3.0.0 - 24-03-2021
+
+ * First version to support Rails 6.1 / 7
+ * Removed support for Ruby 2.4 which is no longer maintained
+
 ## 2.4.0 - 15-09-2020
 
  * __ws parameter is only supported for RailsMultisite::ConnectionManagement.asset_hostname
