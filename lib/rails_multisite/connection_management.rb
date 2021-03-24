@@ -5,168 +5,76 @@ if Rails.version >= '6.1'
 else
   require 'rails_multisite/connection_management/rails_60_compat'
 end
+require 'rails_multisite/connection_management/null_instance'
 
 module RailsMultisite
   class ConnectionManagement
     DEFAULT = 'default'
 
-    def self.default_config_filename
-      File.absolute_path(Rails.root.to_s + "/config/multisite.yml")
-    end
+    class << self
+      attr_accessor :asset_hostnames
 
-    def self.clear_settings!
-      @instance&.db_spec_cache&.each do |key, spec|
-        @instance.connection_handlers.delete(self.handler_key(spec))
+      delegate :all_dbs, :config_filename, :connection_spec, :current_db, :default_connection_handler=,
+               :each_connection, :establish_connection, :has_db?, :host, :reload, :with_connection,
+               :with_hostname, to: :instance
+
+      def default_config_filename
+        File.absolute_path(Rails.root.to_s + "/config/multisite.yml")
       end
 
-      @instance = nil
-    end
-
-    def self.load_settings!
-      # no op only here backwards compat
-      STDERR.puts "RailsMultisite::ConnectionManagement.load_settings! is deprecated"
-    end
-
-    def self.instance
-      @instance
-    end
-
-    def self.config_filename=(config_filename)
-      if config_filename.nil?
+      def clear_settings!
+        instance.clear_settings!
         @instance = nil
-      else
-        @instance = new(config_filename)
       end
-    end
 
-    def self.asset_hostnames
-      @asset_hostnames
-    end
-
-    def self.asset_hostnames=(h)
-      @asset_hostnames = h
-    end
-
-    def self.config_filename
-      @instance.config_filename
-    end
-
-    def self.reload
-      @instance.reload
-    end
-
-    def self.has_db?(db)
-      return true if db == DEFAULT
-      !!(@instance && @instance.has_db?(db))
-    end
-
-    def self.establish_connection(opts)
-      @instance.establish_connection(opts) if @instance
-    end
-
-    def self.with_hostname(hostname, &blk)
-      if @instance
-        @instance.with_hostname(hostname, &blk)
-      else
-        blk.call hostname
+      def load_settings!
+        # no op only here backwards compat
+        STDERR.puts "RailsMultisite::ConnectionManagement.load_settings! is deprecated"
       end
-    end
 
-    def self.with_connection(db = DEFAULT, &blk)
-      if @instance
-        @instance.with_connection(db, &blk)
-      else
-        connected = ActiveRecord::Base.connection_pool.connected?
-        result = blk.call db
-        ActiveRecord::Base.clear_active_connections! unless connected
-        result
+      def instance
+        @instance || NullInstance
       end
-    end
 
-    def self.each_connection(opts = nil, &blk)
-      if @instance
-        @instance.each_connection(opts, &blk)
-      else
-        with_connection(&blk)
-      end
-    end
-
-    def self.all_dbs
-      if @instance
-        @instance.all_dbs
-      else
-        [DEFAULT]
-      end
-    end
-
-    def self.current_db
-      if @instance
-        instance.current_db
-      else
-        DEFAULT
-      end
-    end
-
-    def self.current_hostname
-      current_db_hostnames.first
-    end
-
-    def self.current_db_hostnames
-      config = (@instance&.connection_spec(db: current_db) || ConnectionSpecification.current).config
-      config[:host_names].nil? ? [config[:host]] : config[:host_names]
-    end
-
-    def self.connection_spec(opts)
-      if @instance
-        @instance.connection_spec(opts)
-      else
-        ConnectionSpecification.current
-      end
-    end
-
-    def self.host(env)
-      if @instance
-        @instance.host(env)
-      else
-        env["HTTP_HOST"]
-      end
-    end
-
-    def self.handler_key(spec)
-      @handler_key_suffix ||= begin
-        if ActiveRecord::Base.respond_to?(:writing_role)
-          "_#{ActiveRecord::Base.writing_role}"
+      def config_filename=(config_filename)
+        if config_filename.nil?
+          @instance = nil
         else
-          ""
+          @instance = new(config_filename)
         end
       end
 
-      :"#{spec.name}#{@handler_key_suffix}"
-    end
+      def current_hostname
+        current_db_hostnames.first
+      end
 
-    def self.default_connection_handler=(connection_handler)
-      if @instance
-        unless connection_handler.is_a?(ActiveRecord::ConnectionAdapters::ConnectionHandler)
-          raise ArgumentError.new("Invalid connection handler")
-        end
+      def current_db_hostnames
+        config = (instance.connection_spec(db: current_db) || ConnectionSpecification.current).config
+        config[:host_names].nil? ? [config[:host]] : config[:host_names]
+      end
 
-        @instance.default_connection_handler = connection_handler
+      def handler_key(spec)
+        @handler_key_suffix ||=
+          if ActiveRecord::Base.respond_to?(:writing_role)
+            "_#{ActiveRecord::Base.writing_role}"
+          else
+            ""
+          end
+        :"#{spec.name}#{@handler_key_suffix}"
       end
     end
 
     attr_reader :config_filename, :db_spec_cache, :connection_handlers
-    attr_writer :default_connection_handler
 
     def initialize(config_filename)
       @config_filename = config_filename
 
-      @connection_handlers = begin
+      @connection_handlers =
         if ActiveRecord::Base.respond_to?(:connection_handlers)
           ActiveRecord::Base.connection_handlers
         else
           {}
         end
-      end
 
       @db_spec_cache = {}
       @default_spec = ConnectionSpecification.default
@@ -229,7 +137,7 @@ module RailsMultisite
 
     def has_db?(db)
       return true if db == DEFAULT
-      @db_spec_cache[db]
+      !!@db_spec_cache[db]
     end
 
     def establish_connection(opts)
@@ -249,7 +157,7 @@ module RailsMultisite
         handler = @connection_handlers[handler_key(spec)]
         unless handler
           handler = ActiveRecord::ConnectionAdapters::ConnectionHandler.new
-          handler_establish_connection(handler, spec)
+          handler.establish_connection(spec.config)
           @connection_handlers[handler_key(spec)] = handler
         end
       else
@@ -388,15 +296,24 @@ module RailsMultisite
       end
     end
 
-    private
-
-    def handler_establish_connection(handler, spec)
-      handler.establish_connection(spec.config)
+    def clear_settings!
+      db_spec_cache.each do |key, spec|
+        connection_handlers.delete(handler_key(spec))
+      end
     end
+
+    def default_connection_handler=(connection_handler)
+      unless connection_handler.is_a?(ActiveRecord::ConnectionAdapters::ConnectionHandler)
+        raise ArgumentError.new("Invalid connection handler")
+      end
+
+      @default_connection_handler = connection_handler
+    end
+
+    private
 
     def handler_key(spec)
       self.class.handler_key(spec)
     end
-
   end
 end
