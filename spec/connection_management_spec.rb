@@ -8,10 +8,6 @@ describe RailsMultisite::ConnectionManagement do
 
   let(:conn) { RailsMultisite::ConnectionManagement }
 
-  def fixture_path(name)
-    File.expand_path("fixtures/#{name}", File.dirname(__FILE__))
-  end
-
   before do
     ActiveRecord::Base.establish_connection
   end
@@ -57,10 +53,10 @@ describe RailsMultisite::ConnectionManagement do
   end
 
   it "inherits prepared_statements" do
-    ActiveRecord::Base.configurations[Rails.env]["prepared_statements"] = false
+    load_db_config("database_without_prepared_statements.yml")
     conn.config_filename = fixture_path("two_dbs.yml")
     expect(conn.connection_spec(db: "second").config[:prepared_statements]).to be(false)
-    ActiveRecord::Base.configurations[Rails.env]["prepared_statements"] = nil
+    load_db_config("database.yml")
   end
 
   context 'two dbs' do

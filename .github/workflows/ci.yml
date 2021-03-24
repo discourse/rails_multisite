@@ -16,20 +16,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ruby: ["2.4", "2.5", "2.6", "2.7"]
-        rails: ["5", "6"]
+        ruby: ["2.5", "2.6", "2.7", "3.0"]
+        rails: ["5", "6.0", "6.1"]
         ok_to_fail: [""]
         exclude:
-          - ruby: 2.4
-            rails: 6
+          - ruby: 3.0
+            rails: 5
         include:
-          - ruby: "2.5"
-            rails: master
-            ok_to_fail: " - Ok to fail"
-          - ruby: "2.6"
-            rails: master
-            ok_to_fail: " - Ok to fail"
           - ruby: "2.7"
+            rails: master
+            ok_to_fail: " - Ok to fail"
+          - ruby: "3.0"
             rails: master
             ok_to_fail: " - Ok to fail"
     steps:

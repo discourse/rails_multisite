@@ -25,16 +25,22 @@ RSpec.configure do |config|
       self.class.query_log << [args, caller, Thread.current.object_id]
       old_prepare(*args, &blk)
     end
-
   end
 
-  config.before(:suite) do
+  def fixture_path(name)
+    File.expand_path("fixtures/#{name}", File.dirname(__FILE__))
+  end
+
+  def load_db_config(name)
     if defined?(ActiveRecord::DatabaseConfigurations)
-      configs = ActiveRecord::DatabaseConfigurations.new(YAML::load(File.open("spec/fixtures/database.yml")))
+      configs = ActiveRecord::DatabaseConfigurations.new(YAML::load(File.open(fixture_path(name))))
       ActiveRecord::Base.configurations = configs
     else
-      ActiveRecord::Base.configurations = YAML::load(File.open("spec/fixtures/database.yml"))
+      ActiveRecord::Base.configurations = YAML::load(File.open(fixture_path(name)))
     end
   end
 
+  config.before(:suite) do
+    load_db_config("database.yml")
+  end
 end

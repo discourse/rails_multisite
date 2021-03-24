@@ -1,10 +1,14 @@
 # frozen_string_literal: true
-#
+
+if Rails.version >= '6.1'
+  require 'rails_multisite/connection_management/rails_61_compat'
+else
+  require 'rails_multisite/connection_management/rails_60_compat'
+end
+
 module RailsMultisite
   class ConnectionManagement
-
     DEFAULT = 'default'
-    SPEC_KLASS = ActiveRecord::ConnectionAdapters::ConnectionSpecification
 
     def self.default_config_filename
       File.absolute_path(Rails.root.to_s + "/config/multisite.yml")
@@ -104,16 +108,11 @@ module RailsMultisite
     end
 
     def self.current_hostname
-      spec = @instance.connection_spec(db: self.current_db) if @instance
-      spec ||= ActiveRecord::Base.connection_pool.spec
-      config = spec.config
-      config[:host_names].nil? ? config[:host] : config[:host_names].first
+      current_db_hostnames.first
     end
 
     def self.current_db_hostnames
-      spec = @instance.connection_spec(db: self.current_db) if @instance
-      spec ||= ActiveRecord::Base.connection_pool.spec
-      config = spec.config
+      config = (@instance&.connection_spec(db: current_db) || ConnectionSpecification.current).config
       config[:host_names].nil? ? [config[:host]] : config[:host_names]
     end
 
@@ -121,7 +120,7 @@ module RailsMultisite
       if @instance
         @instance.connection_spec(opts)
       else
-        ActiveRecord::Base.connection_pool.spec
+        ConnectionSpecification.current
       end
     end
 
@@ -170,7 +169,7 @@ module RailsMultisite
       end
 
       @db_spec_cache = {}
-      @default_spec = SPEC_KLASS::Resolver.new(ActiveRecord::Base.configurations).spec(Rails.env.to_sym)
+      @default_spec = ConnectionSpecification.default
       @default_connection_handler = ActiveRecord::Base.connection_handler
 
       @reload_mutex = Mutex.new
@@ -181,7 +180,7 @@ module RailsMultisite
     def load_config!
       configs = YAML::load(File.open(@config_filename))
 
-      no_prepared_statements = ActiveRecord::Base.configurations[Rails.env]["prepared_statements"] == false
+      no_prepared_statements = @default_spec.config[:prepared_statements] == false
 
       configs.each do |k, v|
         raise ArgumentError.new("Please do not name any db default!") if k == DEFAULT
@@ -189,17 +188,8 @@ module RailsMultisite
         v[:prepared_statements] = false if no_prepared_statements
       end
 
-      resolve_configs = configs
-
-      # rails 6 needs to use a proper object for the resolver
-      if defined?(ActiveRecord::DatabaseConfigurations)
-        resolve_configs = ActiveRecord::DatabaseConfigurations.new(configs)
-      end
-
-      resolver = SPEC_KLASS::Resolver.new(resolve_configs)
-
       # Build a hash of db name => spec
-      new_db_spec_cache = Hash[*configs.map { |k, _| [k, resolver.spec(k.to_sym)] }.flatten]
+      new_db_spec_cache = ConnectionSpecification.db_spec_cache(configs)
       new_db_spec_cache.each do |k, v|
         # If spec already existed, use the old version
         if v&.to_hash == @db_spec_cache[k]&.to_hash
@@ -217,7 +207,7 @@ module RailsMultisite
       end
 
       # Add the default hostnames as well
-      ActiveRecord::Base.configurations[Rails.env]["host_names"].each do |host|
+      @default_spec.config[:host_names].each do |host|
         new_host_spec_cache[host] = @default_spec
       end
 
@@ -365,7 +355,7 @@ module RailsMultisite
     end
 
     def current_db
-      ActiveRecord::Base.connection_pool.spec.config[:db_key] || DEFAULT
+      ConnectionSpecification.current.config[:db_key] || DEFAULT
     end
 
     def current_hostname
