@@ -9,9 +9,14 @@ module RailsMultisite
     initializer "RailsMultisite.init" do |app|
       app.config.multisite = false
 
-      config_file = ConnectionManagement.default_config_filename
+      config_file =
+        app.config.respond_to?(:multisite_config_path) &&
+        app.config.multisite_config_path.presence
+
+      config_file ||= ConnectionManagement.default_config_filename
+
       if File.exist?(config_file)
-        ConnectionManagement.config_filename = ConnectionManagement.default_config_filename
+        ConnectionManagement.config_filename = config_file
         app.config.multisite = true
         Rails.logger.formatter = RailsMultisite::Formatter.new
 
