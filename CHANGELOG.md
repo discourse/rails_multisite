@@ -1,3 +1,7 @@
+## 3.1.0 - 10-09-2021
+
+ * Make config file path configurable via `Rails.configuration.multisite_config_path`
+
 ## 3.0.0 - 24-03-2021
 
  * First version to support Rails 6.1 / 7
