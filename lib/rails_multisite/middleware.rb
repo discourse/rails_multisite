@@ -22,6 +22,7 @@ module RailsMultisite
 
         ActiveRecord::Base.connection_handler.clear_active_connections!
         ConnectionManagement.establish_connection(host: host, db: db)
+        CookieSalt.update_cookie_salts(env: env, host: host)
         @app.call(env)
       ensure
         ActiveRecord::Base.connection_handler.clear_active_connections!

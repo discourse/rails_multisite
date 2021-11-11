@@ -1,3 +1,8 @@
+## 4.0.0 - 2021-11-15
+
+ * Vary the encrypted/signed cookie salts per-hostname (fix for CVE-2021-41263). This update will
+   cause existing cookies to be invalidated
+
 ## 3.1.0 - 2021-09-10
 
  * Make config file path configurable via `Rails.configuration.multisite_config_path`
