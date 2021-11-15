@@ -31,16 +31,10 @@ jobs:
             ok_to_fail: " - Ok to fail"
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-ruby@v1
+      - uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
-      - name: Bundler cache
-        uses: actions/cache@v2
-        with:
-          path: vendor/bundle
-          key: ${{ runner.os }}-${{ matrix.ruby }}-${{ matrix.rails }}-gems-${{ hashFiles('**/Gemfile.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-${{ matrix.ruby }}-${{ matrix.rails }}-gems-
+          bundler-cache: true
       - name: Setup gems
         run: |
           bundle config set path vendor/bundle

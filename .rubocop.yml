@@ -3,3 +3,4 @@ inherit_gem:
 AllCops:
   Exclude:
    - gemfiles/vendor/bundle/**/*
+   - vendor/bundle/**/*
