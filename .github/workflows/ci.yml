@@ -12,7 +12,7 @@ jobs:
     continue-on-error: ${{ matrix.ok_to_fail == ' - Ok to fail' }}
     name: "Ruby ${{ matrix.ruby }} - Rails ${{ matrix.rails }}${{ matrix.ok_to_fail }}"
     env:
-      RAILS_MULTISITE_GEMFILE: gemfiles/rails_${{ matrix.rails }}.gemfile
+      BUNDLE_GEMFILE: ${{ github.workspace }}/gemfiles/rails_${{ matrix.rails }}.gemfile
     strategy:
       fail-fast: false
       matrix:
@@ -31,21 +31,24 @@ jobs:
             ok_to_fail: " - Ok to fail"
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-ruby@v1
+      - uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
-      - name: Bundler cache
-        uses: actions/cache@v2
-        with:
-          path: vendor/bundle
-          key: ${{ runner.os }}-${{ matrix.ruby }}-${{ matrix.rails }}-gems-${{ hashFiles('**/Gemfile.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-${{ matrix.ruby }}-${{ matrix.rails }}-gems-
-      - name: Setup gems
-        run: |
-          bundle config set path vendor/bundle
-          BUNDLE_GEMFILE=$PWD/$RAILS_MULTISITE_GEMFILE bundle install --jobs=3 --retry=3 --without development
+          bundler-cache: true
       - name: Rubocop
-        run: BUNDLE_GEMFILE=$PWD/$RAILS_MULTISITE_GEMFILE bundle exec rubocop
+        run: bundle exec rubocop
       - name: Tests
-        run: BUNDLE_GEMFILE=$PWD/$RAILS_MULTISITE_GEMFILE bundle exec rspec
+        run: bundle exec rspec
+
+  publish:
+    if: contains(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Release Gem
+        uses: discourse/publish-rubygems-action@main
+        env:
+          RUBYGEMS_API_KEY: ${{secrets.RUBYGEMS_API_KEY}}
