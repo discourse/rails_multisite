@@ -1,55 +1,55 @@
-## 3.1.0 - 10-09-2021
+## 3.1.0 - 2021-09-10
 
  * Make config file path configurable via `Rails.configuration.multisite_config_path`
 
-## 3.0.0 - 24-03-2021
+## 3.0.0 - 2021-03-24
 
  * First version to support Rails 6.1 / 7
  * Removed support for Ruby 2.4 which is no longer maintained
 
-## 2.4.0 - 15-09-2020
+## 2.4.0 - 2020-09-15
 
  * __ws parameter is only supported for RailsMultisite::ConnectionManagement.asset_hostname
    previously we would support this for any hostname and careful attackers could use this
    maliciously. Additionally, if __ws is used we will always strip request cookies as an
    extra security measure.
 
-## 2.3.0 - 10-06-2020
+## 2.3.0 - 2020-06-10
 
  * Allow the default connection handler to be changed.
 
-## 2.2.2 - 02-06-2020
+## 2.2.2 - 2020-06-02
 
  * Use `ActiveRecord::Base.connection_handlers` to keep track of all connection handlers.
 
-## 2.1.2 - 08-05-2020
+## 2.1.2 - 2020-05-08
 
  * Add support for `Rails.configuration.skip_multisite_middleware`, if configured railstie will avoid
  all configuration of middleware.
 
-## 2.1.1 - 13-03-2020
+## 2.1.1 - 2020-03-13
 
  * Add `current_db_hostnames` to get a listing of current db hostnames
 
-## 2.1.0 - 28-02-2020
+## 2.1.0 - 2020-02-28
 
  * When reloading, only update changed connection specs. This means that ActiveRecord can keep the existing SchemaCache for unchanged connections
  * Remove support for Rails 4
  * Remove support for Ruby 2.3
 
-## 2.0.7 - 29-04-2019
+## 2.0.7 - 2019-04-29
 
  * Add support for Rails 6
  * Remove support for Ruby 2.2 as it is EOL
 
-## 2.0.6 - 23-01-2019
+## 2.0.6 - 2019-01-23
 
   * Fixed a bug where calling `RailsMultisite::ConnectionManagement#establish_connection`
     with a `db: default, raise_on_missing: true` would raise an error.
 
 ## 2.0.5 - YANKED
 
-## 2.0.4 - 12-02-2018
+## 2.0.4 - 2018-02-12
 
   * Fix bug where calling `RailsMultisite::ConnectionManagement.current_hostname`
     with a `default` connection would throw an undefined method error.
