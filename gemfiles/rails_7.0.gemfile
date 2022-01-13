@@ -1,0 +1,12 @@
+# frozen_string_literal: true
+source 'https://rubygems.org'
+
+group :test do
+  gem 'activerecord', '> 7', '< 7.1'
+  gem 'railties', '> 7', '< 7.1'
+  gem 'rspec'
+  gem 'sqlite3', '~> 1.4'
+  gem 'byebug'
+  gem 'rubocop'
+  gem 'rubocop-discourse'
+end
