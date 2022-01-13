@@ -1,3 +1,7 @@
+## 4.0.1 - 2022-01-13
+
+ * Add support for Rails 7.0+
+
 ## 4.0.0 - 2021-11-15
 
  * Vary the encrypted/signed cookie salts per-hostname (fix for CVE-2021-41263). This update will
