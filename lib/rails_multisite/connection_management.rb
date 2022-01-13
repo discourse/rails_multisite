@@ -178,7 +178,7 @@ module RailsMultisite
     end
 
     def load_config!
-      configs = YAML::load(File.open(@config_filename))
+      configs = YAML.safe_load(File.open(@config_filename))
 
       no_prepared_statements = @default_spec.config[:prepared_statements] == false
 

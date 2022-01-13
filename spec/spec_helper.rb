@@ -33,10 +33,10 @@ RSpec.configure do |config|
 
   def load_db_config(name)
     if defined?(ActiveRecord::DatabaseConfigurations)
-      configs = ActiveRecord::DatabaseConfigurations.new(YAML::load(File.open(fixture_path(name))))
+      configs = ActiveRecord::DatabaseConfigurations.new(YAML.safe_load(File.open(fixture_path(name))))
       ActiveRecord::Base.configurations = configs
     else
-      ActiveRecord::Base.configurations = YAML::load(File.open(fixture_path(name)))
+      ActiveRecord::Base.configurations = YAML.safe_load(File.open(fixture_path(name)))
     end
   end
 
