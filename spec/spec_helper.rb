@@ -42,5 +42,6 @@ RSpec.configure do |config|
 
   config.before(:suite) do
     load_db_config("database.yml")
+    ActiveRecord.legacy_connection_handling = false if ActiveRecord.respond_to?(:legacy_connection_handling)
   end
 end
