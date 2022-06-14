@@ -10,6 +10,8 @@ module RailsMultisite
   class ConnectionManagement
     DEFAULT = 'default'
 
+    cattr_accessor :connection_handlers, default: {}
+
     def self.default_config_filename
       File.absolute_path(Rails.root.to_s + "/config/multisite.yml")
     end
@@ -134,7 +136,9 @@ module RailsMultisite
 
     def self.handler_key(spec)
       @handler_key_suffix ||= begin
-        if ActiveRecord::Base.respond_to?(:writing_role)
+        if ActiveRecord.respond_to?(:writing_role)
+          "_#{ActiveRecord.writing_role}"
+        elsif ActiveRecord::Base.respond_to?(:writing_role)
           "_#{ActiveRecord::Base.writing_role}"
         else
           ""
@@ -154,19 +158,11 @@ module RailsMultisite
       end
     end
 
-    attr_reader :config_filename, :db_spec_cache, :connection_handlers
+    attr_reader :config_filename, :db_spec_cache
     attr_writer :default_connection_handler
 
     def initialize(config_filename)
       @config_filename = config_filename
-
-      @connection_handlers = begin
-        if ActiveRecord::Base.respond_to?(:connection_handlers)
-          ActiveRecord::Base.connection_handlers
-        else
-          {}
-        end
-      end
 
       @db_spec_cache = {}
       @default_spec = ConnectionSpecification.default
@@ -218,7 +214,7 @@ module RailsMultisite
       @db_spec_cache = new_db_spec_cache
 
       # Clean up connection handler cache.
-      removed_specs.each { |s| @connection_handlers.delete(handler_key(s)) }
+      removed_specs.each { |s| connection_handlers.delete(handler_key(s)) }
     end
 
     def reload
@@ -246,11 +242,11 @@ module RailsMultisite
       spec ||= @default_spec
       handler = nil
       if spec != @default_spec
-        handler = @connection_handlers[handler_key(spec)]
+        handler = connection_handlers[handler_key(spec)]
         unless handler
           handler = ActiveRecord::ConnectionAdapters::ConnectionHandler.new
           handler_establish_connection(handler, spec)
-          @connection_handlers[handler_key(spec)] = handler
+          connection_handlers[handler_key(spec)] = handler
         end
       else
         handler = @default_connection_handler
