@@ -27,12 +27,12 @@ describe RailsMultisite::ConnectionManagement do
     ActiveRecord::Base.connection_handler = original_connection_handler
   end
 
-  context 'default' do
+  context 'with default' do
     it 'has correct all_dbs' do
       expect(conn.all_dbs).to eq(['default'])
     end
 
-    context 'current' do
+    context 'with current' do
       it "has default current db" do
         expect(conn.current_db).to eq('default')
       end
@@ -59,8 +59,7 @@ describe RailsMultisite::ConnectionManagement do
     load_db_config("database.yml")
   end
 
-  context 'two dbs' do
-
+  context 'with two dbs' do
     before do
       conn.config_filename = fixture_path("two_dbs.yml")
     end
@@ -99,7 +98,7 @@ describe RailsMultisite::ConnectionManagement do
       expect(conn.all_dbs).to eq(['default', 'second'])
     end
 
-    context 'second db' do
+    context 'with second db' do
       it "is configured correctly" do
         with_connection('second') do
           expect(conn.current_db).to eq('second')
@@ -108,7 +107,7 @@ describe RailsMultisite::ConnectionManagement do
       end
     end
 
-    context 'data partitioning' do
+    context 'with data partitioning' do
       after do
         ['default', 'second'].each do |db|
           with_connection(db) do |cnn|

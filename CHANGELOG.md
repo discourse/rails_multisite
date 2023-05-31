@@ -1,3 +1,9 @@
+## 5.0.0 - 2023-05-31
+
+ * Add support for Rails 7.1+
+ * Drop support for Ruby < 3.0
+ * Drop support for Rails < 6.0
+
 ## 4.0.1 - 2022-01-13
 
  * Add support for Rails 7.0+
