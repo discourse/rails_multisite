@@ -17,7 +17,7 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
   gem.version       = RailsMultisite::VERSION
 
-  gem.required_ruby_version = ">=3.0.0"
+  gem.required_ruby_version = ">=3.1"
 
   gem.add_dependency "activerecord", ">= 6.0"
   gem.add_dependency "railties", ">= 6.0"
