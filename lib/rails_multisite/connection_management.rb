@@ -297,9 +297,10 @@ module RailsMultisite
       request = Rack::Request.new(env)
 
       host =
-        if request["__ws"] && self.class.asset_hostnames&.include?(request.host)
+        if request.params["__ws"] &&
+             self.class.asset_hostnames&.include?(request.host)
           request.cookies.clear
-          request["__ws"]
+          request.params["__ws"]
         else
           request.host
         end
