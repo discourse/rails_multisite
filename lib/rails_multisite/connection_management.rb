@@ -63,10 +63,7 @@ module RailsMultisite
       end
 
       def current_db_hostnames
-        config =
-          (
-            connection_spec(db: current_db) || ConnectionSpecification.current
-          ).config
+        config = (connection_spec(db: current_db) || ConnectionSpecification.current).config
         config[:host_names] || [config[:host]]
       end
 
@@ -101,13 +98,10 @@ module RailsMultisite
     def load_config!
       configs = YAML.safe_load(File.open(config_filename))
 
-      no_prepared_statements =
-        @default_spec.config[:prepared_statements] == false
+      no_prepared_statements = @default_spec.config[:prepared_statements] == false
 
       configs.each do |k, v|
-        if k == DEFAULT
-          raise ArgumentError.new("Please do not name any db default!")
-        end
+        raise ArgumentError.new("Please do not name any db default!") if k == DEFAULT
         v[:db_key] = k
         v[:prepared_statements] = false if no_prepared_statements
       end
@@ -116,24 +110,18 @@ module RailsMultisite
       new_db_spec_cache = ConnectionSpecification.db_spec_cache(configs)
       new_db_spec_cache.each do |k, v|
         # If spec already existed, use the old version
-        if v&.to_hash == db_spec_cache[k]&.to_hash
-          new_db_spec_cache[k] = db_spec_cache[k]
-        end
+        new_db_spec_cache[k] = db_spec_cache[k] if v&.to_hash == db_spec_cache[k]&.to_hash
       end
 
       # Build a hash of hostname => spec
       new_host_spec_cache = {}
       configs.each do |k, v|
         next unless v["host_names"]
-        v["host_names"].each do |host|
-          new_host_spec_cache[host] = new_db_spec_cache[k]
-        end
+        v["host_names"].each { |host| new_host_spec_cache[host] = new_db_spec_cache[k] }
       end
 
       # Add the default hostnames as well
-      @default_spec.config[:host_names].each do |host|
-        new_host_spec_cache[host] = @default_spec
-      end
+      @default_spec.config[:host_names].each { |host| new_host_spec_cache[host] = @default_spec }
 
       removed_dbs = db_spec_cache.keys - new_db_spec_cache.keys
       removed_specs = db_spec_cache.values_at(*removed_dbs)
@@ -159,9 +147,7 @@ module RailsMultisite
       if opts[:db] != DEFAULT
         spec = connection_spec(opts)
 
-        if (!spec && opts[:raise_on_missing])
-          raise "ERROR: #{opts[:db]} not found!"
-        end
+        raise "ERROR: #{opts[:db]} not found!" if (!spec && opts[:raise_on_missing])
       end
 
       spec ||= @default_spec
@@ -191,9 +177,7 @@ module RailsMultisite
         ActiveRecord::Base.connection_handler.clear_active_connections!
 
         establish_connection(host: old)
-        unless connected
-          ActiveRecord::Base.connection_handler.clear_active_connections!
-        end
+        ActiveRecord::Base.connection_handler.clear_active_connections! unless connected
       end
 
       rval
@@ -210,9 +194,7 @@ module RailsMultisite
         ActiveRecord::Base.connection_handler.clear_active_connections!
 
         establish_connection(db: old)
-        unless connected
-          ActiveRecord::Base.connection_handler.clear_active_connections!
-        end
+        ActiveRecord::Base.connection_handler.clear_active_connections! unless connected
       end
 
       rval
@@ -267,14 +249,10 @@ module RailsMultisite
         end
       end
 
-      if errors && errors.length > 0
-        raise StandardError, "Failed to run queries #{errors.inspect}"
-      end
+      raise StandardError, "Failed to run queries #{errors.inspect}" if errors && errors.length > 0
     ensure
       establish_connection(db: old)
-      unless connected
-        ActiveRecord::Base.connection_handler.clear_active_connections!
-      end
+      ActiveRecord::Base.connection_handler.clear_active_connections! unless connected
     end
 
     def all_dbs
@@ -312,15 +290,11 @@ module RailsMultisite
     end
 
     def clear_settings!
-      db_spec_cache.each do |key, spec|
-        connection_handlers.delete(handler_key(spec))
-      end
+      db_spec_cache.each { |key, spec| connection_handlers.delete(handler_key(spec)) }
     end
 
     def default_connection_handler=(connection_handler)
-      unless connection_handler.is_a?(
-               ActiveRecord::ConnectionAdapters::ConnectionHandler
-             )
+      unless connection_handler.is_a?(ActiveRecord::ConnectionAdapters::ConnectionHandler)
         raise ArgumentError.new("Invalid connection handler")
       end
 

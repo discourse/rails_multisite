@@ -21,4 +21,12 @@ Gem::Specification.new do |gem|
 
   gem.add_dependency "activerecord", ">= 6.0"
   gem.add_dependency "railties", ">= 6.0"
+
+  gem.add_development_dependency "rspec"
+  gem.add_development_dependency "sqlite3"
+  gem.add_development_dependency "byebug"
+  gem.add_development_dependency "guard"
+  gem.add_development_dependency "guard-rspec"
+  gem.add_development_dependency "rubocop-discourse", "= 3.8.1"
+  gem.add_development_dependency "syntax_tree"
 end

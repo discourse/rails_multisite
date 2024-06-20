@@ -10,20 +10,5 @@ if rails_master?
   gem 'rails', git: 'https://github.com/rails/rails.git', branch: 'main'
 end
 
-group :development, :test do
-  gem 'byebug'
-  gem 'rubocop-discourse'
-end
-
-group :test do
-  gem 'rspec'
-  gem 'sqlite3'
-end
-
-group :development do
-  gem 'guard'
-  gem 'guard-rspec'
-end
-
 # Specify your gem's dependencies in rails_multisite.gemspec
 gemspec

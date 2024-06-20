@@ -10,13 +10,12 @@ module RailsMultisite
       host = ConnectionManagement.host(env)
       db = nil
       begin
-
         unless ConnectionManagement.connection_spec(host: host)
           db = @db_lookup && @db_lookup.call(env)
           if db
             host = nil
           else
-            return [404, {}, ["not found"]]
+            return 404, {}, ["not found"]
           end
         end
 

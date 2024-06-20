@@ -1,12 +1,12 @@
 # frozen_string_literal: true
-ENV["RAILS_ENV"] ||= 'test'
+ENV["RAILS_ENV"] ||= "test"
 RSpec.configure do |config|
-  config.order = 'random'
+  config.order = "random"
 
-  require 'sqlite3'
-  require 'byebug'
-  require 'active_record'
-  require 'active_record/base'
+  require "sqlite3"
+  require "byebug"
+  require "active_record"
+  require "active_record/base"
 
   class SQLite3::Database
     def self.query_log
@@ -33,7 +33,8 @@ RSpec.configure do |config|
 
   def load_db_config(name)
     if defined?(ActiveRecord::DatabaseConfigurations)
-      configs = ActiveRecord::DatabaseConfigurations.new(YAML.safe_load(File.open(fixture_path(name))))
+      configs =
+        ActiveRecord::DatabaseConfigurations.new(YAML.safe_load(File.open(fixture_path(name))))
       ActiveRecord::Base.configurations = configs
     else
       ActiveRecord::Base.configurations = YAML.safe_load(File.open(fixture_path(name)))
@@ -42,6 +43,8 @@ RSpec.configure do |config|
 
   config.before(:suite) do
     load_db_config("database.yml")
-    ActiveRecord.legacy_connection_handling = false if ActiveRecord.respond_to?(:legacy_connection_handling)
+    ActiveRecord.legacy_connection_handling = false if ActiveRecord.respond_to?(
+      :legacy_connection_handling,
+    )
   end
 end
