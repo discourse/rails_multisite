@@ -121,8 +121,8 @@ describe RailsMultisite::ConnectionManagement do
 
         5.times do
           %w[default second].map do |db|
-              Thread.new { with_connection(db) { |cnn| Person.create!(db: db) } }
-            end
+            Thread.new { with_connection(db) { |cnn| Person.create!(db: db) } }
+          end
             .map(&:join)
         end
 
