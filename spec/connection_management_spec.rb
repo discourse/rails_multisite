@@ -120,9 +120,8 @@ describe RailsMultisite::ConnectionManagement do
         SQLite3::Database.query_log.clear
 
         5.times do
-          %w[default second].map do |db|
-            Thread.new { with_connection(db) { |cnn| Person.create!(db: db) } }
-          end
+          %w[default second]
+            .map { |db| Thread.new { with_connection(db) { |cnn| Person.create!(db: db) } } }
             .map(&:join)
         end
 
