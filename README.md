@@ -51,7 +51,6 @@ drwho:
     - discuss.tardis.gallifrey
 ```
 
-
 ### Execute a query on each connection
 
 ```
@@ -83,7 +82,7 @@ db_one:
   database: some_database_1
 
 db_two:
-  adapater: ...
+  adapter: ...
   database: some_database_2
 ```
 
@@ -97,7 +96,7 @@ RAILS_DB=db_one rails console
 
 To avoid needing to configure many origins you can consider using `RailsMultisite::ConnectionManagement.asset_hostnames`
 
-When configured, requests to `asset_hostname`?__ws=another.host.name will be re-routed to the correct site. Cookies will
+When configured, requests to `asset_hostname`?\_\_ws=another.host.name will be re-routed to the correct site. Cookies will
 be stripped on all incoming requests.
 
 Example:
@@ -105,7 +104,6 @@ Example:
 - Multisite serves `sub.example.com` and `assets.example.com`
 - `RailsMultisite::ConnectionManagement.asset_hostnames = ['assets.example.com']`
 - Requests to `https://assets.example.com/route/?__ws=sub.example.com` will be routed to the `sub.example.com`
-
 
 ## Contributing
 

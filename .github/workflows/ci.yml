@@ -7,36 +7,59 @@ on:
       - main
 
 jobs:
-  build:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+          bundler-cache: true
+
+      - name: Rubocop
+        run: bundle exec rubocop
+
+      - name: Syntax Tree
+        if: ${{ !cancelled() }}
+        run: |
+          bundle exec stree check Gemfile $(git ls-files '*.rb') $(git ls-files '*.rake') $(git ls-files '*.thor')
+
+  test:
     runs-on: ubuntu-latest
     continue-on-error: ${{ matrix.ok_to_fail == ' - Ok to fail' }}
     name: "Ruby ${{ matrix.ruby }} - Rails ${{ matrix.rails }}${{ matrix.ok_to_fail }}"
+
     env:
       BUNDLE_GEMFILE: ${{ github.workspace }}/gemfiles/rails_${{ matrix.rails }}.gemfile
+
     strategy:
       fail-fast: false
       matrix:
         ruby: ["3.1", "3.2", "3.3"]
         rails: ["6.1", "7.0", "7.1", "edge"]
         ok_to_fail: [""]
+
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
+
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
-      - name: Rubocop
-        run: bundle exec rubocop
+
       - name: Tests
         run: bundle exec rspec
 
   publish:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: build
+    needs: [lint, test]
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
+
       - name: Release Gem
         uses: discourse/publish-rubygems-action@v3
         env:

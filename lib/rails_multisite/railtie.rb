@@ -2,16 +2,13 @@
 
 module RailsMultisite
   class Railtie < Rails::Railtie
-    rake_tasks do
-      Dir[File.join(File.dirname(__FILE__), '../tasks/*.rake')].each { |f| load f }
-    end
+    rake_tasks { Dir[File.join(File.dirname(__FILE__), "../tasks/*.rake")].each { |f| load f } }
 
     initializer "RailsMultisite.init" do |app|
       app.config.multisite = false
 
       config_file =
-        app.config.respond_to?(:multisite_config_path) &&
-        app.config.multisite_config_path.presence
+        app.config.respond_to?(:multisite_config_path) && app.config.multisite_config_path.presence
 
       config_file ||= ConnectionManagement.default_config_filename
 
@@ -25,8 +22,8 @@ module RailsMultisite
           app.middleware.delete(ActionDispatch::Executor)
         end
 
-        if ENV['RAILS_DB'].present?
-          ConnectionManagement.establish_connection(db: ENV['RAILS_DB'], raise_on_missing: true)
+        if ENV["RAILS_DB"].present?
+          ConnectionManagement.establish_connection(db: ENV["RAILS_DB"], raise_on_missing: true)
         end
       end
     end

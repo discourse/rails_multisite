@@ -14,14 +14,15 @@ module RailsMultisite
           if defined?(ActiveRecord::DatabaseConfigurations)
             resolve_configs = ActiveRecord::DatabaseConfigurations.new(configs)
           end
-          resolver = ActiveRecord::ConnectionAdapters::ConnectionSpecification::Resolver.new(resolve_configs)
+          resolver =
+            ActiveRecord::ConnectionAdapters::ConnectionSpecification::Resolver.new(resolve_configs)
           configs.map { |k, _| [k, resolver.spec(k.to_sym)] }.to_h
         end
 
         def default
-          ActiveRecord::ConnectionAdapters::ConnectionSpecification::Resolver
-            .new(ActiveRecord::Base.configurations)
-            .spec(Rails.env.to_sym)
+          ActiveRecord::ConnectionAdapters::ConnectionSpecification::Resolver.new(
+            ActiveRecord::Base.configurations,
+          ).spec(Rails.env.to_sym)
         end
       end
     end

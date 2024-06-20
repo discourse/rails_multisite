@@ -47,9 +47,7 @@ module RailsMultisite
       def with_connection(db = DEFAULT, &blk)
         connected = ActiveRecord::Base.connection_pool.connected?
         result = blk.call(db)
-        unless connected
-          ActiveRecord::Base.connection_handler.clear_active_connections!
-        end
+        ActiveRecord::Base.connection_handler.clear_active_connections! unless connected
         result
       end
 

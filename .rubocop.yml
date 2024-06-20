@@ -1,9 +1,10 @@
 inherit_gem:
   rubocop-discourse: default.yml
+
 AllCops:
   Exclude:
-   - gemfiles/vendor/bundle/**/*
-   - vendor/bundle/**/*
+    - gemfiles/vendor/bundle/**/*
+    - vendor/bundle/**/*
 
 Discourse/Plugins:
   Enabled: false
