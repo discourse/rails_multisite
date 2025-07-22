@@ -2,10 +2,10 @@
 source 'https://rubygems.org'
 
 group :test do
-  gem 'activerecord', '> 6', '< 7'
-  gem 'railties', '> 6', '< 7'
+  gem 'activerecord', '~> 8.0.0'
+  gem 'railties', '~> 8.0.0'
   gem 'rspec'
-  gem 'sqlite3', '~> 1.4'
+  gem 'sqlite3'
   gem 'byebug'
   gem 'rubocop'
   gem 'rubocop-discourse'

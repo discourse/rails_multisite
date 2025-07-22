@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.0.0] - 2025-07-22
+
+### Added
+
+- Support for Rails 8.0+
+- Bump minimum Ruby support to >= 3.2 since Ruby 3.1 is EOL.
+- Bump minimum Rails support to >= 7.1 since Rails 7.0 is EOL.
+
 ## [6.1.0] - 2024-08-13
 
 ### Added

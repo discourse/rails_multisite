@@ -32,16 +32,11 @@ RSpec.configure do |config|
   end
 
   def load_db_config(name)
-    if defined?(ActiveRecord::DatabaseConfigurations)
-      configs = ActiveRecord::DatabaseConfigurations.new(YAML.safe_load(File.open(fixture_path(name))))
-      ActiveRecord::Base.configurations = configs
-    else
-      ActiveRecord::Base.configurations = YAML.safe_load(File.open(fixture_path(name)))
-    end
+    configs = ActiveRecord::DatabaseConfigurations.new(YAML.safe_load(File.open(fixture_path(name))))
+    ActiveRecord::Base.configurations = configs
   end
 
   config.before(:suite) do
     load_db_config("database.yml")
-    ActiveRecord.legacy_connection_handling = false if ActiveRecord.respond_to?(:legacy_connection_handling)
   end
 end
