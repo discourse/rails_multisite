@@ -1,10 +1,6 @@
 # frozen_string_literal: true
 
-if Rails.version >= "6.1"
-  require "rails_multisite/connection_management/rails_61_compat"
-else
-  require "rails_multisite/connection_management/rails_60_compat"
-end
+require "rails_multisite/connection_management/connection_specification"
 require "rails_multisite/connection_management/null_instance"
 
 module RailsMultisite
