@@ -65,9 +65,7 @@ describe RailsMultisite::Middleware do
     let :session do
       config = {
         db_lookup: lambda do |env|
-          p env["rack.request.query_string"]
-          pp env
-          if env["rack.request.query_string"] == "allow"
+          if env["QUERY_STRING"] == "allow"
             "default"
           else
             nil
