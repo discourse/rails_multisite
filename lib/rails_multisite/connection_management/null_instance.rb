@@ -32,6 +32,22 @@ module RailsMultisite
         DEFAULT
       end
 
+      def current_path_prefix
+        nil
+      end
+
+      def static_path_prefix
+        "/"
+      end
+
+      def default_spec?(_spec)
+        false
+      end
+
+      def dynamic_path_prefix_enabled
+        false
+      end
+
       def each_connection(_opts = nil, &blk)
         with_connection(&blk)
       end

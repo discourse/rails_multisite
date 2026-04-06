@@ -11,12 +11,25 @@ module RailsMultisite
       db = nil
       begin
 
-        unless ConnectionManagement.connection_spec(host: host)
+        unless spec = ConnectionManagement.connection_spec(host: host)
           db = @db_lookup && @db_lookup.call(env)
           if db
             host = nil
           else
             return [404, {}, ["not found"]]
+          end
+        end
+
+        if ConnectionManagement.dynamic_path_prefix_enabled? && spec
+          if path_prefix = spec.config[:path_prefix]
+            path_info = env["PATH_INFO"].to_s
+            unless path_info == path_prefix || path_info.start_with?("#{path_prefix}/")
+              return [404, {}, ["not found"]]
+            end
+
+            env["SCRIPT_NAME"] = env["SCRIPT_NAME"].to_s + path_prefix
+            env["PATH_INFO"] = path_info[path_prefix.length..]
+            env["PATH_INFO"] = "/" if env["PATH_INFO"].nil? || env["PATH_INFO"].empty?
           end
         end
 

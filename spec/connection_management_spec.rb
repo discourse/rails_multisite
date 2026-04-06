@@ -98,6 +98,17 @@ describe RailsMultisite::ConnectionManagement do
       expect(conn.all_dbs).to eq(['default', 'second'])
     end
 
+    it 'finds spec by hostname' do
+      spec = conn.connection_spec(host: 'second.localhost')
+      expect(spec).not_to be_nil
+      expect(spec.config[:db_key]).to eq('second')
+    end
+
+    it 'returns nil for an unknown hostname' do
+      spec = conn.connection_spec(host: 'unknown.localhost')
+      expect(spec).to be_nil
+    end
+
     context 'with second db' do
       it "is configured correctly" do
         with_connection('second') do
@@ -235,6 +246,62 @@ describe RailsMultisite::ConnectionManagement do
     end
   end
 
+  describe 'path-prefix config per site' do
+    before do
+      conn.config_filename = fixture_path('two_dbs_path_prefix.yml')
+    end
+
+    it 'finds site_a spec by hostname' do
+      spec = conn.connection_spec(host: 'site_a.localhost')
+      expect(spec).not_to be_nil
+      expect(spec.config[:db_key]).to eq('site_a')
+    end
+
+    it 'finds site_b spec by hostname' do
+      spec = conn.connection_spec(host: 'site_b.localhost')
+      expect(spec).not_to be_nil
+      expect(spec.config[:db_key]).to eq('site_b')
+    end
+
+    it 'returns nil for an unknown hostname' do
+      spec = conn.connection_spec(host: 'unknown.localhost')
+      expect(spec).to be_nil
+    end
+
+    it 'stores the normalized path_prefix on the spec config' do
+      spec = conn.connection_spec(host: 'site_a.localhost')
+      expect(spec.config[:path_prefix]).to eq('/site_a')
+    end
+
+    it 'returns nil for current_path_prefix on a hostname-only site' do
+      conn.config_filename = fixture_path('two_dbs.yml')
+      conn.establish_connection(host: 'second.localhost')
+      expect(conn.current_path_prefix).to be_nil
+    end
+
+    it 'returns the path prefix for current_path_prefix when connected to a path-prefix site' do
+      with_connection('site_a') do
+        expect(conn.current_path_prefix).to eq('/site_a')
+      end
+    end
+
+    it 'returns nil for current_path_prefix when on the default db with no default path prefix' do
+      with_connection('default') do
+        expect(conn.current_path_prefix).to be_nil
+      end
+    end
+
+    it 'returns the default path prefix for current_path_prefix when on the default db' do
+      load_db_config('database_with_path_prefix.yml')
+      conn.config_filename = fixture_path('two_dbs_path_prefix.yml')
+      with_connection('default') do
+        expect(conn.current_path_prefix).to eq('/root')
+      end
+    ensure
+      load_db_config('database.yml')
+    end
+  end
+
   describe '.default_connection_handler=' do
     before do
       conn.config_filename = fixture_path("two_dbs.yml")
@@ -259,6 +326,34 @@ describe RailsMultisite::ConnectionManagement do
       conn.establish_connection(db: described_class::DEFAULT)
 
       expect(ActiveRecord::Base.connection_handler).to eq(default_handler)
+    end
+  end
+
+  describe '.dynamic_path_prefix_enabled?' do
+    it 'should be false when no path prefixes are configured' do
+      conn.config_filename = fixture_path('two_dbs.yml')
+      expect(conn.dynamic_path_prefix_enabled?).to eq(false)
+    end
+
+    it 'should be true when at least one path prefix is configured' do
+      conn.config_filename = fixture_path('two_dbs_path_prefix.yml')
+      expect(conn.dynamic_path_prefix_enabled?).to eq(true)
+    end
+
+    it 'should be dynamic when only the default db has a path prefix configured' do
+      load_db_config('database_with_path_prefix.yml')
+      conn.config_filename = fixture_path('two_dbs.yml')
+      expect(conn.dynamic_path_prefix_enabled?).to eq(true)
+    ensure
+      load_db_config('database.yml')
+    end
+
+    it 'should be false when multiple path prefixes are configured, but are all the same' do
+      load_db_config('database_with_path_prefix.yml')
+      conn.config_filename = fixture_path('two_dbs_same_path_prefix.yml')
+      expect(conn.dynamic_path_prefix_enabled?).to eq(false)
+    ensure
+      load_db_config('database.yml')
     end
   end
 

@@ -1,0 +1,13 @@
+site_a:
+  adapter: sqlite3
+  database: 'tmp/db_forum_a.test'
+  host_names:
+    - site_a.localhost
+  path_prefix: /site_a
+
+site_b:
+  adapter: sqlite3
+  database: 'tmp/db_forum_b.test'
+  host_names:
+    - site_b.localhost
+  path_prefix: /site_b

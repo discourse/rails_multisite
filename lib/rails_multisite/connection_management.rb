@@ -9,7 +9,7 @@ module RailsMultisite
 
     cattr_accessor :connection_handlers, default: {}
 
-    attr_reader :config_filename, :db_spec_cache
+    attr_reader :config_filename, :db_spec_cache, :dynamic_path_prefix_enabled, :static_path_prefix
 
     class << self
       attr_accessor :asset_hostnames
@@ -18,12 +18,15 @@ module RailsMultisite
                :config_filename,
                :connection_spec,
                :current_db,
+               :current_path_prefix,
                :default_connection_handler=,
+               :default_spec?,
                :each_connection,
                :establish_connection,
                :has_db?,
                :host,
                :reload,
+               :static_path_prefix,
                :with_connection,
                :with_hostname,
                to: :instance
@@ -80,6 +83,10 @@ module RailsMultisite
 
         :"#{spec.name}#{@handler_key_suffix}"
       end
+
+      def dynamic_path_prefix_enabled?
+        instance.dynamic_path_prefix_enabled || false
+      end
     end
 
     def initialize(config_filename)
@@ -105,6 +112,7 @@ module RailsMultisite
           raise ArgumentError.new("Please do not name any db default!")
         end
         v[:db_key] = k
+        v[:path_prefix] = normalize_path_prefix(v["path_prefix"])
         v[:prepared_statements] = false if no_prepared_statements
       end
 
@@ -127,6 +135,11 @@ module RailsMultisite
       end
 
       # Add the default hostnames as well
+      if (raw = @default_spec.config[:path_prefix])
+        unless raw.start_with?("/") && !raw.end_with?("/")
+          raise ArgumentError.new("database.yml path_prefix must start with '/' and have no trailing slash (got: #{raw.inspect})")
+        end
+      end
       @default_spec.config[:host_names].each do |host|
         new_host_spec_cache[host] = @default_spec
       end
@@ -136,6 +149,11 @@ module RailsMultisite
 
       @host_spec_cache = new_host_spec_cache
       @db_spec_cache = new_db_spec_cache
+
+      path_prefixes = @host_spec_cache.values.map { |s| s.config[:path_prefix] }.uniq
+      p "[MULTI] Path prefixes: #{path_prefixes.inspect}"
+      @dynamic_path_prefix_enabled = path_prefixes.length > 1
+      @static_path_prefix = @dynamic_path_prefix_enabled ? nil : (path_prefixes.first || "/")
 
       # Clean up connection handler cache.
       removed_specs.each { |s| connection_handlers.delete(handler_key(s)) }
@@ -308,6 +326,15 @@ module RailsMultisite
       opts[:host] ? @host_spec_cache[opts[:host]] : db_spec_cache[opts[:db]]
     end
 
+    def default_spec?(spec)
+      spec.equal?(@default_spec)
+    end
+
+    def current_path_prefix
+      return @default_spec.config[:path_prefix] if current_db == DEFAULT
+      ConnectionSpecification.current.config[:path_prefix]
+    end
+
     def clear_settings!
       db_spec_cache.each do |key, spec|
         connection_handlers.delete(handler_key(spec))
@@ -328,6 +355,14 @@ module RailsMultisite
 
     def handler_key(spec)
       self.class.handler_key(spec)
+    end
+
+    def normalize_path_prefix(raw)
+      return nil if raw.nil? || raw.to_s.strip.empty?
+      prefix = raw.to_s.strip
+      prefix = "/#{prefix}" unless prefix.start_with?("/")
+      prefix = prefix.chomp("/")
+      prefix.empty? ? nil : prefix
     end
   end
 end
