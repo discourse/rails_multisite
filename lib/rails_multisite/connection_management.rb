@@ -12,12 +12,13 @@ module RailsMultisite
     attr_reader :config_filename, :db_spec_cache
 
     class << self
-      attr_accessor :asset_hostnames
+      attr_accessor :asset_hostnames, :default_path_prefix
 
       delegate :all_dbs,
                :config_filename,
                :connection_spec,
                :current_db,
+               :current_path_prefix,
                :default_connection_handler=,
                :each_connection,
                :establish_connection,
@@ -105,6 +106,7 @@ module RailsMultisite
           raise ArgumentError.new("Please do not name any db default!")
         end
         v[:db_key] = k
+        v[:path_prefix] = normalize_path_prefix(v["path_prefix"])
         v[:prepared_statements] = false if no_prepared_statements
       end
 
@@ -117,19 +119,41 @@ module RailsMultisite
         end
       end
 
-      # Build a hash of hostname => spec
+      # Build a hash of hostname => spec (hostname-only sites only; path-prefix
+      # sites are excluded so unknown prefixes produce 404 rather than a wrong match)
       new_host_spec_cache = {}
       configs.each do |k, v|
         next unless v["host_names"]
+        next if v[:path_prefix]
         v["host_names"].each do |host|
           new_host_spec_cache[host] = new_db_spec_cache[k]
         end
       end
 
-      # Add the default hostnames as well
-      @default_spec.config[:host_names].each do |host|
-        new_host_spec_cache[host] = @default_spec
+      # Add the default hostnames (unless default has a path prefix)
+      unless normalize_path_prefix(self.class.default_path_prefix)
+        @default_spec.config[:host_names].each do |host|
+          new_host_spec_cache[host] = @default_spec
+        end
       end
+
+      # Build a hash of "hostname/path_prefix" => spec, sorted longest-key-first
+      new_path_spec_cache = {}
+      configs.each do |k, v|
+        next unless v["host_names"] && v[:path_prefix]
+        v["host_names"].each do |host|
+          new_path_spec_cache["#{host}#{v[:path_prefix]}"] = new_db_spec_cache[k]
+        end
+      end
+
+      @default_path_prefix = normalize_path_prefix(self.class.default_path_prefix)
+      if @default_path_prefix
+        @default_spec.config[:host_names].each do |host|
+          new_path_spec_cache["#{host}#{@default_path_prefix}"] = @default_spec
+        end
+      end
+
+      @path_spec_cache = new_path_spec_cache.sort_by { |k, _| -k.length }.to_h
 
       removed_dbs = db_spec_cache.keys - new_db_spec_cache.keys
       removed_specs = db_spec_cache.values_at(*removed_dbs)
@@ -194,6 +218,8 @@ module RailsMultisite
 
       rval
     end
+
+    # TODO: add with_path_prefix or a composite key so that applications quickly switch
 
     def with_connection(db = DEFAULT)
       old = current_db
@@ -305,7 +331,30 @@ module RailsMultisite
     end
 
     def connection_spec(opts)
-      opts[:host] ? @host_spec_cache[opts[:host]] : db_spec_cache[opts[:db]]
+
+      # TODO: check headers for db key for nginx?
+
+      if opts[:host]
+        path_info = opts[:path]
+        if path_info && path_info.length > 1
+          @path_spec_cache.each do |composite_key, spec|
+            next unless composite_key.start_with?(opts[:host])
+            path_prefix = composite_key[opts[:host].length..]
+            if path_info == path_prefix || path_info.start_with?("#{path_prefix}/")
+              return spec
+            end
+          end
+        end
+
+        @host_spec_cache[opts[:host]]
+      else
+        db_spec_cache[opts[:db]]
+      end
+    end
+
+    def current_path_prefix
+      return @default_path_prefix if current_db == DEFAULT
+      ConnectionSpecification.current.config[:path_prefix]
     end
 
     def clear_settings!
@@ -328,6 +377,13 @@ module RailsMultisite
 
     def handler_key(spec)
       self.class.handler_key(spec)
+    end
+
+    def normalize_path_prefix(raw)
+      return nil if raw.nil? || raw.to_s.strip.empty?
+      prefix = raw.to_s.strip
+      prefix = "/#{prefix}" unless prefix.start_with?("/")
+      prefix.chomp("/")
     end
   end
 end

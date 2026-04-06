@@ -235,6 +235,67 @@ describe RailsMultisite::ConnectionManagement do
     end
   end
 
+  describe 'path-prefix routing' do
+    before do
+      conn.config_filename = fixture_path('two_dbs_path_prefix.yml')
+    end
+
+    it 'finds site_a spec by host + path prefix' do
+      spec = conn.connection_spec(host: 'example.localhost', path: '/site_a/posts')
+      expect(spec).not_to be_nil
+      expect(spec.config[:db_key]).to eq('site_a')
+    end
+
+    it 'finds site_b spec by host + path prefix' do
+      spec = conn.connection_spec(host: 'example.localhost', path: '/site_b/topics/1')
+      expect(spec).not_to be_nil
+      expect(spec.config[:db_key]).to eq('site_b')
+    end
+
+    it 'matches when PATH_INFO equals the prefix exactly' do
+      spec = conn.connection_spec(host: 'example.localhost', path: '/site_a')
+      expect(spec.config[:db_key]).to eq('site_a')
+    end
+
+    it 'returns nil for unknown prefix when all sites on that host use path prefixes' do
+      spec = conn.connection_spec(host: 'example.localhost', path: '/unknown/page')
+      expect(spec).to be_nil
+    end
+
+    it 'stores the normalized path_prefix on the spec config' do
+      spec = conn.connection_spec(host: 'example.localhost', path: '/site_a/posts')
+      expect(spec.config[:path_prefix]).to eq('/site_a')
+    end
+
+    it 'returns nil for current_path_prefix on a hostname-only site' do
+      conn.config_filename = fixture_path('two_dbs.yml')
+      conn.establish_connection(host: 'second.localhost')
+      expect(conn.current_path_prefix).to be_nil
+    end
+
+    it 'returns the path prefix for current_path_prefix when connected to a path-prefix site' do
+      with_connection('site_a') do
+        expect(conn.current_path_prefix).to eq('/site_a')
+      end
+    end
+
+    it 'returns nil for current_path_prefix when on the default db with no default path prefix' do
+      with_connection('default') do
+        expect(conn.current_path_prefix).to be_nil
+      end
+    end
+
+    it 'returns the default path prefix for current_path_prefix when on the default db' do
+      conn.default_path_prefix = '/root'
+      conn.config_filename = fixture_path('two_dbs_path_prefix.yml')
+      with_connection('default') do
+        expect(conn.current_path_prefix).to eq('/root')
+      end
+    ensure
+      conn.default_path_prefix = nil
+    end
+  end
+
   describe '.default_connection_handler=' do
     before do
       conn.config_filename = fixture_path("two_dbs.yml")
