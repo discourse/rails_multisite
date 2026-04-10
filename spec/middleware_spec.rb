@@ -166,6 +166,12 @@ describe RailsMultisite::Middleware do
       expect(last_response).to be_not_found
     end
 
+    it 'routes to the correct db via X-MULTISITE-KEY composite key' do
+      get 'http://boom.com/site_a/posts', {}, { 'HTTP_X_MULTISITE_KEY' => 'example.localhost/site_a' }
+      expect(last_response).to be_ok
+      expect(JSON.parse(last_response.body)["db"]).to eq("site_a")
+    end
+
     describe 'with default_path_prefix' do
       before do
         RailsMultisite::ConnectionManagement.default_path_prefix = "/root"

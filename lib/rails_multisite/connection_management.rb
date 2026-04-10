@@ -331,8 +331,11 @@ module RailsMultisite
     end
 
     def connection_spec(opts)
-
-      # TODO: check headers for db key for nginx?
+      # if a key is provided (matching hostname/path_prefix or hostname), use it to find the spec directly
+      if opts[:key]
+        found_spec = @path_spec_cache[opts[:key]] || @host_spec_cache[opts[:key]]
+        return found_spec if found_spec
+      end
 
       if opts[:host]
         path_info = opts[:path]

@@ -98,6 +98,17 @@ describe RailsMultisite::ConnectionManagement do
       expect(conn.all_dbs).to eq(['default', 'second'])
     end
 
+    it 'finds spec by hostname key' do
+      spec = conn.connection_spec(key: 'second.localhost')
+      expect(spec).not_to be_nil
+      expect(spec.config[:db_key]).to eq('second')
+    end
+
+    it 'returns nil for an unknown hostname key' do
+      spec = conn.connection_spec(key: 'unknown.localhost')
+      expect(spec).to be_nil
+    end
+
     context 'with second db' do
       it "is configured correctly" do
         with_connection('second') do
@@ -259,6 +270,23 @@ describe RailsMultisite::ConnectionManagement do
 
     it 'returns nil for unknown prefix when all sites on that host use path prefixes' do
       spec = conn.connection_spec(host: 'example.localhost', path: '/unknown/page')
+      expect(spec).to be_nil
+    end
+
+    it 'finds site_a spec by composite key (host/path_prefix)' do
+      spec = conn.connection_spec(key: 'example.localhost/site_a')
+      expect(spec).not_to be_nil
+      expect(spec.config[:db_key]).to eq('site_a')
+    end
+
+    it 'finds site_b spec by composite key (host/path_prefix)' do
+      spec = conn.connection_spec(key: 'example.localhost/site_b')
+      expect(spec).not_to be_nil
+      expect(spec.config[:db_key]).to eq('site_b')
+    end
+
+    it 'returns nil for an unknown composite key' do
+      spec = conn.connection_spec(key: 'example.localhost/unknown')
       expect(spec).to be_nil
     end
 

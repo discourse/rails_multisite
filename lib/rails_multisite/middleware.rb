@@ -10,7 +10,8 @@ module RailsMultisite
       host = ConnectionManagement.host(env)
       db = nil
       begin
-        spec = ConnectionManagement.connection_spec(host: host, path: env["PATH_INFO"])
+        key = env["HTTP_X_MULTISITE_KEY"] if env["HTTP_X_MULTISITE_KEY"].present?
+        spec = ConnectionManagement.connection_spec(host: host, path: env["PATH_INFO"], key: key)
 
         unless spec
           db = @db_lookup && @db_lookup.call(env)
