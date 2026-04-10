@@ -340,10 +340,9 @@ module RailsMultisite
       if opts[:host]
         path_info = opts[:path]
         if path_info && path_info.length > 1
+          request_path = "#{opts[:host]}#{path_info}"
           @path_spec_cache.each do |composite_key, spec|
-            next unless composite_key.start_with?(opts[:host])
-            path_prefix = composite_key[opts[:host].length..]
-            if path_info == path_prefix || path_info.start_with?("#{path_prefix}/")
+            if composite_key == request_path || request_path.start_with?("#{composite_key}/")
               return spec
             end
           end
