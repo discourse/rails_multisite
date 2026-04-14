@@ -35,6 +35,10 @@ module RailsMultisite
             RailsMultisite::ConnectionManagement.current_path_prefix
           end
         end
+        ActiveSupport.on_load(:action_view) do
+          # config is only set when the ActionView template is needed, prepend a setter.
+          prepend RailsMultisite::ActionViewHelper
+        end
 
         if ENV['RAILS_DB'].present?
           ConnectionManagement.establish_connection(db: ENV['RAILS_DB'], raise_on_missing: true)

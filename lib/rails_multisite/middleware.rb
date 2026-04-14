@@ -10,7 +10,7 @@ module RailsMultisite
       host = ConnectionManagement.host(env)
       db = nil
       begin
-        key = env["HTTP_X_MULTISITE_KEY"] if env["HTTP_X_MULTISITE_KEY"].present?
+        key = env["HTTP_MULTISITE_ROUTE"] if env["HTTP_MULTISITE_ROUTE"].present?
         spec = ConnectionManagement.connection_spec(host: host, path: env["PATH_INFO"], key: key)
 
         unless spec
