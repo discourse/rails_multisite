@@ -16,8 +16,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ruby: ["3.2", "3.3", "3.4"]
-        rails: ["7.1", "7.2", "8.0", "edge"]
+        ruby: ["3.3", "3.4", "4.0"]
+        rails: ["7.2", "8.0", "8.1", "edge"]
     steps:
       - uses: actions/checkout@v2
       - uses: ruby/setup-ruby@v1
