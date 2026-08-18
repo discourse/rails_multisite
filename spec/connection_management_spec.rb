@@ -50,6 +50,12 @@ describe RailsMultisite::ConnectionManagement do
       expect(x).to eq("hi")
     end
 
+    it 'raises for with_connection on an unknown db' do
+      expect {
+        conn.with_connection("missing") { raise "should not be reached" }
+      }.to raise_error(RailsMultisite::UnknownSiteError)
+    end
+
   end
 
   it "inherits prepared_statements" do
@@ -105,6 +111,34 @@ describe RailsMultisite::ConnectionManagement do
           expect(conn.current_hostname).to eq("second.localhost")
         end
       end
+    end
+
+    it 'raises for with_connection on an unknown db and stays on the current one' do
+      expect {
+        conn.with_connection("missing") { raise "should not be reached" }
+      }.to raise_error(RailsMultisite::UnknownSiteError)
+
+      expect(conn.current_db).to eq('default')
+    end
+
+    it 'raises for with_hostname on an unknown hostname' do
+      expect {
+        conn.with_hostname("missing.localhost") { raise "should not be reached" }
+      }.to raise_error(RailsMultisite::UnknownSiteError, /missing.localhost/)
+
+      expect(conn.current_db).to eq('default')
+    end
+
+    it 'falls back to the default db when raise_on_missing is false' do
+      db = conn.with_connection("missing", raise_on_missing: false) { conn.current_db }
+
+      expect(db).to eq('default')
+    end
+
+    it 'falls back to the default host when raise_on_missing is false' do
+      db = conn.with_hostname("missing.localhost", raise_on_missing: false) { conn.current_db }
+
+      expect(db).to eq('default')
     end
 
     context 'with data partitioning' do

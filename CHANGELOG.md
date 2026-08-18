@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [9.0.0] - 2026-08-18
+
+### Changed
+
+- `raise_on_missing` now defaults to `true`, so `with_connection`, `with_hostname` and `establish_connection` raise when the requested db is missing instead of silently falling back to the default one. The old behavior can still be reached by passing `raise_on_missing: false`.
+- The error raised is now `RailsMultisite::UnknownSiteError` instead of a bare `RuntimeError`.
+- `establish_connection` takes `db:`, `host:` and `raise_on_missing:` keyword arguments instead of an options hash.
+
 ## [8.0.0] - 2026-04-22
 
 ### Added
