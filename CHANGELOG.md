@@ -9,9 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- `raise_on_missing` now defaults to `true`, so `with_connection`, `with_hostname` and `establish_connection` raise when the requested db is missing instead of silently falling back to the default one. The old behavior can still be reached by passing `raise_on_missing: false`.
-- The error raised is now `RailsMultisite::UnknownSiteError` instead of a bare `RuntimeError`.
-- `establish_connection` takes `db:`, `host:` and `raise_on_missing:` keyword arguments instead of an options hash.
+- Changed `RailsMultisite::ConnectionManagement.with_connection`,
+  `RailsMultisite::ConnectionManagement.with_hostname`, and
+  `RailsMultisite::ConnectionManagement.establish_connection` to raise
+  `RailsMultisite::UnknownSiteError` for unknown databases or hostnames by
+  default. Pass `raise_on_missing: false` to retain fallback behavior.
+  `RailsMultisite::ConnectionManagement.establish_connection` now accepts
+  `db:`, `host:`, and `raise_on_missing:` keyword arguments instead of a
+  positional options hash.
 
 ## [8.0.0] - 2026-04-22
 
