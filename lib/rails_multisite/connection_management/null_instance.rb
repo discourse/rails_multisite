@@ -15,6 +15,9 @@ module RailsMultisite
       end
 
       def establish_connection(db: nil, host: nil, raise_on_missing: true)
+        if !host && !has_db?(db.to_s) && raise_on_missing
+          raise UnknownSiteError.new(db)
+        end
       end
 
       def reload

@@ -56,6 +56,21 @@ describe RailsMultisite::ConnectionManagement do
       }.to raise_error(RailsMultisite::UnknownSiteError)
     end
 
+    it 'raises for establish_connection on an unknown db' do
+      expect {
+        conn.establish_connection(db: "missing")
+      }.to raise_error(RailsMultisite::UnknownSiteError)
+    end
+
+    it 'does not raise for establish_connection with raise_on_missing: false' do
+      conn.establish_connection(db: "missing", raise_on_missing: false)
+    end
+
+    it 'yields any hostname for with_hostname' do
+      x = conn.with_hostname("anything.example.com") { |h| h }
+      expect(x).to eq("anything.example.com")
+    end
+
   end
 
   it "inherits prepared_statements" do
