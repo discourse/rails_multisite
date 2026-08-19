@@ -48,7 +48,7 @@ module RailsMultisite
       end
 
       def with_connection(db = DEFAULT, raise_on_missing: true, &blk)
-        raise UnknownSiteError.new(db) if !has_db?(db) && raise_on_missing
+        raise UnknownSiteError.new(db) if !has_db?(db.to_s) && raise_on_missing
 
         connected = ActiveRecord::Base.connection_pool.connected?
         result = blk.call(db)
