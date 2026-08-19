@@ -14,7 +14,10 @@ module RailsMultisite
       def default_connection_handler=(_connection_handler)
       end
 
-      def establish_connection(_opts)
+      def establish_connection(db: nil, host: nil, raise_on_missing: true)
+        if !host && !has_db?(db.to_s) && raise_on_missing
+          raise UnknownSiteError.new(db)
+        end
       end
 
       def reload
@@ -44,16 +47,18 @@ module RailsMultisite
         env["HTTP_HOST"]
       end
 
-      def with_connection(db = DEFAULT, &blk)
+      def with_connection(db = DEFAULT, raise_on_missing: true, &blk)
+        raise UnknownSiteError.new(db) if !has_db?(db.to_s) && raise_on_missing
+
         connected = ActiveRecord::Base.connection_pool.connected?
         result = blk.call(db)
-        unless connected
+        if !connected
           ActiveRecord::Base.connection_handler.clear_active_connections!
         end
         result
       end
 
-      def with_hostname(hostname, &blk)
+      def with_hostname(hostname, raise_on_missing: true, &blk)
         blk.call(hostname)
       end
     end

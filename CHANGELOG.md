@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [9.0.0] - 2026-08-18
+
+### Changed
+
+- Changed `RailsMultisite::ConnectionManagement.with_connection`,
+  `RailsMultisite::ConnectionManagement.with_hostname`, and
+  `RailsMultisite::ConnectionManagement.establish_connection` to raise
+  `RailsMultisite::UnknownSiteError` for unknown databases or hostnames by
+  default. Pass `raise_on_missing: false` to retain fallback behavior.
+  `RailsMultisite::ConnectionManagement.establish_connection` now accepts
+  `db:`, `host:`, and `raise_on_missing:` keyword arguments instead of a
+  positional options hash.
+
 ## [8.0.0] - 2026-04-22
 
 ### Added

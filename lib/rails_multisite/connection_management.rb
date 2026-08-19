@@ -4,6 +4,12 @@ require "rails_multisite/connection_management/connection_specification"
 require "rails_multisite/connection_management/null_instance"
 
 module RailsMultisite
+  class UnknownSiteError < StandardError
+    def initialize(db)
+      super("ERROR: #{db} not found!")
+    end
+  end
+
   class ConnectionManagement
     DEFAULT = "default"
 
@@ -149,18 +155,20 @@ module RailsMultisite
       db == DEFAULT || !!db_spec_cache[db]
     end
 
-    def establish_connection(opts)
-      opts[:db] = opts[:db].to_s
+    def establish_connection(db: nil, host: nil, raise_on_missing: true)
+      db = db.to_s
 
-      if opts[:db] != DEFAULT
-        spec = connection_spec(opts)
-
-        if (!spec && opts[:raise_on_missing])
-          raise "ERROR: #{opts[:db]} not found!"
+      spec =
+        if db == DEFAULT
+          @default_spec
+        elsif (found = connection_spec(db: db, host: host))
+          found
+        elsif raise_on_missing
+          raise UnknownSiteError.new(host || db)
+        else
+          @default_spec
         end
-      end
 
-      spec ||= @default_spec
       handler = nil
       if spec != @default_spec
         handler = connection_handlers[handler_key(spec)]
@@ -176,18 +184,20 @@ module RailsMultisite
       ActiveRecord::Base.connection_handler = handler
     end
 
-    def with_hostname(hostname)
+    def with_hostname(hostname, raise_on_missing: true)
       old = current_hostname
       connected = ActiveRecord::Base.connection_pool.connected?
 
-      establish_connection(host: hostname) unless connected && hostname == old
+      if !(connected && hostname == old)
+        establish_connection(host: hostname, raise_on_missing: raise_on_missing)
+      end
       rval = yield hostname
 
-      unless connected && hostname == old
+      if !(connected && hostname == old)
         ActiveRecord::Base.connection_handler.clear_active_connections!
 
-        establish_connection(host: old)
-        unless connected
+        establish_connection(host: old, raise_on_missing: false)
+        if !connected
           ActiveRecord::Base.connection_handler.clear_active_connections!
         end
       end
@@ -195,17 +205,19 @@ module RailsMultisite
       rval
     end
 
-    def with_connection(db = DEFAULT)
+    def with_connection(db = DEFAULT, raise_on_missing: true)
       old = current_db
       connected = ActiveRecord::Base.connection_pool.connected?
 
-      establish_connection(db: db) unless connected && db == old
+      if !(connected && db == old)
+        establish_connection(db: db, raise_on_missing: raise_on_missing)
+      end
       rval = yield db
 
-      unless connected && db == old
+      if !(connected && db == old)
         ActiveRecord::Base.connection_handler.clear_active_connections!
 
-        establish_connection(db: old)
+        establish_connection(db: old, raise_on_missing: false)
         unless connected
           ActiveRecord::Base.connection_handler.clear_active_connections!
         end
