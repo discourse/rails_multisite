@@ -83,7 +83,7 @@ db_one:
   database: some_database_1
 
 db_two:
-  adapater: ...
+  adapter: ...
   database: some_database_2
 ```
 

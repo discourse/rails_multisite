@@ -2,13 +2,18 @@
 desc "generate multisite config file (if missing)"
 task "multisite:generate:config" => :environment do
   filename = RailsMultisite::ConnectionManagement.config_filename
+  if !filename && Rails.application.config.respond_to?(:multisite_config_path)
+    filename = Rails.application.config.multisite_config_path.presence
+  end
+  filename ||= RailsMultisite::ConnectionManagement.default_config_filename
 
   if File.exist?(filename)
-    puts "Config is already generated at #{RailsMultisite::ConnectionManagement::CONFIG_FILE}"
+    puts "Config is already generated at #{filename}"
   else
-    puts "Generated config file at #{RailsMultisite::ConnectionManagement::CONFIG_FILE}"
     File.open(filename, 'w') do |f|
       f.write <<-CONFIG
+{}
+
 # site_name:
 #   adapter: postgresql
 #   database: db_name
@@ -21,6 +26,6 @@ task "multisite:generate:config" => :environment do
 CONFIG
 
     end
-
+    puts "Generated config file at #{filename}"
   end
 end
